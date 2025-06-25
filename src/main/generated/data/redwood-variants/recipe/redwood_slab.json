@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": "redwood-variants:redwood_planks"
+  },
+  "pattern": [
+    "EEE"
+  ],
+  "result": {
+    "count": 6,
+    "id": "redwood-variants:redwood_slab"
+  }
+}

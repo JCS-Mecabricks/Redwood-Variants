@@ -1,0 +1,43 @@
+{
+	"schemaVersion": 1,
+	"id": "redwood-variants",
+	"version": "${version}",
+	"name": "Redwood variants",
+	"description": "This mod adds the new redwood trees, and new wood sets",
+	"authors": [
+		"JCS"
+	],
+	"contact": {
+		"homepage": "",
+		"sources": ""
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/redwood-variants/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"github.jcsmecabricks.redwoodvariants.RedwoodVariants"
+		],
+		"client": [
+			"github.jcsmecabricks.redwoodvariants.RedwoodVariantsClient"
+		],
+		"fabric-datagen": [
+			"github.jcsmecabricks.redwoodvariants.RedwoodVariantsDataGenerator"
+		],
+		"terrablender": [
+			"github.jcsmecabricks.redwoodvariants.world.biomes.ModTerrablenderAPI"
+		]
+	},
+	"mixins": [
+		"redwood-variants.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.5",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

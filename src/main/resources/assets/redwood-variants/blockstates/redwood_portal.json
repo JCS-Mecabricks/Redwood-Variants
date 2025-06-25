@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "axis=z": { "model": "redwood-variants:block/redwood_portal_ew" },
+    "axis=x": { "model": "redwood-variants:block/redwood_portal_ns" }
+  }
+}
