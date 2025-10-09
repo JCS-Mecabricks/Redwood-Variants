@@ -164,12 +164,12 @@ public class RedwoodVariantsRecipeProvider extends FabricRecipeProvider {
                         .offerTo(exporter);
                 createShaped(RecipeCategory.MISC, ItemInit.HANGING_REDWOOD_SIGN, 6)
                         .input('E', BlockInit.STRIPPED_REDWOOD_LOG)
-                        .input('A', Blocks.CHAIN)
+                        .input('A', Blocks.IRON_CHAIN)
                         .pattern("A A")
                         .pattern("EEE")
                         .pattern("EEE")
                         .criterion(hasItem(BlockInit.STRIPPED_REDWOOD_LOG), conditionsFromItem(BlockInit.STRIPPED_REDWOOD_LOG))
-                        .criterion(hasItem(Blocks.CHAIN), conditionsFromItem(Blocks.CHAIN))
+                        .criterion(hasItem(Blocks.IRON_CHAIN), conditionsFromItem(Blocks.IRON_CHAIN))
                         .offerTo(exporter);
                 createShaped(RecipeCategory.MISC, ItemInit.REDWOOD_BOAT)
                         .input('E', BlockInit.REDWOOD_PLANKS)

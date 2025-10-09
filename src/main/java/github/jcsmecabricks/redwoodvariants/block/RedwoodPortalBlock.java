@@ -1,6 +1,5 @@
 package github.jcsmecabricks.redwoodvariants.block;
 
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
 import github.jcsmecabricks.redwoodvariants.world.dimension.ModDimensions;
 import github.jcsmecabricks.redwoodvariants.world.dimension.ModTeleporter;
@@ -29,13 +28,15 @@ import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.tick.ScheduledTickView;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
-
+import com.mojang.logging.LogUtils;
 import java.util.Optional;
+
 
 public class RedwoodPortalBlock extends Block implements Portal{
     public static final MapCodec<RedwoodPortalBlock> CODEC = createCodec(RedwoodPortalBlock::new);
     public static final EnumProperty<Direction.Axis> AXIS;
-    private static final Logger LOGGER;
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     protected static final int field_31196 = 2;
     protected static final VoxelShape X_SHAPE;
     protected static final VoxelShape Z_SHAPE;
@@ -123,7 +124,7 @@ public class RedwoodPortalBlock extends Block implements Portal{
             rectangle = BlockLocating.getLargestRectangle(blockPos, blockState.get(Properties.HORIZONTAL_AXIS), 21, Direction.Axis.Y, 21, (posx) -> world.getBlockState(posx) == blockState);
             postDimensionTransition = TeleportTarget.SEND_TRAVEL_THROUGH_PORTAL_PACKET.then((entityx) -> entityx.addPortalChunkTicketAt(blockPos));
         } else {
-            Direction.Axis axis = entity.getWorld().getBlockState(pos).getOrEmpty(AXIS).orElse(Direction.Axis.X);
+            Direction.Axis axis = entity.getEntityWorld().getBlockState(pos).getOrEmpty(AXIS).orElse(Direction.Axis.X);
             Optional<BlockLocating.Rectangle> optional2 = modTeleporter.createPortal(scaledPos, axis);
             if (optional2.isEmpty()) {
                 LOGGER.error("Unable to create a portal, likely target out of worldborder");
@@ -138,12 +139,12 @@ public class RedwoodPortalBlock extends Block implements Portal{
     }
 
     private static TeleportTarget getExitPortalTarget(Entity entity, BlockPos pos, BlockLocating.Rectangle exitPortalRectangle, ServerWorld world, TeleportTarget.PostDimensionTransition postDimensionTransition) {
-        BlockState blockState = entity.getWorld().getBlockState(pos);
+        BlockState blockState = entity.getEntityWorld().getBlockState(pos);
         Direction.Axis axis;
         Vec3d vec3d;
         if (blockState.contains(Properties.HORIZONTAL_AXIS)) {
             axis = blockState.get(Properties.HORIZONTAL_AXIS);
-            BlockLocating.Rectangle rectangle = BlockLocating.getLargestRectangle(pos, axis, 21, Direction.Axis.Y, 21, (posx) -> entity.getWorld().getBlockState(posx) == blockState);
+            BlockLocating.Rectangle rectangle = BlockLocating.getLargestRectangle(pos, axis, 21, Direction.Axis.Y, 21, (posx) -> entity.getEntityWorld().getBlockState(posx) == blockState);
             vec3d = entity.positionInPortal(axis, rectangle);
         } else {
             axis = Direction.Axis.X;
@@ -228,7 +229,6 @@ public class RedwoodPortalBlock extends Block implements Portal{
 
     static {
         AXIS = Properties.HORIZONTAL_AXIS;
-        LOGGER = LogUtils.getLogger();
         X_SHAPE = Block.createCuboidShape(0.0F, 0.0F, 6.0F, 16.0F, 16.0F, 10.0F);
         Z_SHAPE = Block.createCuboidShape(6.0F, 0.0F, 0.0F, 10.0F, 16.0F, 16.0F);
     }

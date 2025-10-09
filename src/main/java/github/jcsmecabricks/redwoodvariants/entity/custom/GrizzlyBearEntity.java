@@ -2,9 +2,7 @@ package github.jcsmecabricks.redwoodvariants.entity.custom;
 
 import github.jcsmecabricks.redwoodvariants.entity.ModEntities;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.FoodComponent;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -17,7 +15,6 @@ import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.DyeItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -27,9 +24,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.DyeColor;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
@@ -141,7 +136,7 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
                 return false;
             } else {
                 if (super.canStart()) {
-                    for (GrizzlyBearEntity grizzlyBearEntity : GrizzlyBearEntity.this.getWorld()
+                    for (GrizzlyBearEntity grizzlyBearEntity : GrizzlyBearEntity.this.getEntityWorld()
                             .getNonSpectatingEntities(GrizzlyBearEntity.class, GrizzlyBearEntity.this.getBoundingBox().expand(8.0, 4.0, 8.0))) {
                         if (grizzlyBearEntity.isBaby()) {
                             return true;
@@ -158,7 +153,7 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
     public void tick() {
         super.tick();
 
-        if (this.getWorld().isClient()) {
+        if (this.getEntityWorld().isClient()) {
             this.setupAnimationStates();
         }
     }
@@ -229,7 +224,7 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
     }
 
     public long getLastPoseTickDelta() {
-        return this.getWorld().getTime() - Math.abs(this.dataTracker.get(LAST_POSE_TICK));
+        return this.getEntityWorld().getTime() - Math.abs(this.dataTracker.get(LAST_POSE_TICK));
     }
 
     public boolean isChangingPose() {
@@ -283,7 +278,7 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
         this.playSound(SoundEvents.ENTITY_CAMEL_SIT);
         this.setPose(EntityPose.SITTING);
         this.emitGameEvent(GameEvent.ENTITY_ACTION);
-        this.setLastPoseTick(-this.getWorld().getTime());
+        this.setLastPoseTick(-this.getEntityWorld().getTime());
 
         setInSittingPose(true);
         setSitting(true);
@@ -296,7 +291,7 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
         this.playSound(SoundEvents.ENTITY_CAMEL_STAND);
         this.setPose(EntityPose.STANDING);
         this.emitGameEvent(GameEvent.ENTITY_ACTION);
-        this.setLastPoseTick(this.getWorld().getTime());
+        this.setLastPoseTick(this.getEntityWorld().getTime());
 
         setInSittingPose(false);
         setSitting(false);
@@ -334,7 +329,7 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
 
                     return actionResult;
             }
-        } else if (!this.getWorld().isClient && itemStack.isOf(Items.HONEY_BOTTLE) && !this.hasAngerTime()) {
+        } else if (!this.getEntityWorld().isClient() && itemStack.isOf(Items.HONEY_BOTTLE) && !this.hasAngerTime()) {
             itemStack.decrementUnlessCreative(1, player);
             this.tryTame(player);
             return ActionResult.SUCCESS_SERVER;
@@ -350,9 +345,9 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
             this.navigation.stop();
             this.setTarget(null);
             this.setSitting(true);
-            this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
+            this.getEntityWorld().sendEntityStatus(this, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
         } else {
-            this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_NEGATIVE_PLAYER_REACTION_PARTICLES);
+            this.getEntityWorld().sendEntityStatus(this, EntityStatuses.ADD_NEGATIVE_PLAYER_REACTION_PARTICLES);
         }
     }
 
