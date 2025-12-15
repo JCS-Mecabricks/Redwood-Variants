@@ -102,22 +102,22 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
     }
 
     @Override
-    public int getAngerTime() {
+    public long getAngerEndTime() {
         return 0;
     }
 
     @Override
-    public void setAngerTime(int angerTime) {
+    public void setAngerEndTime(long angerEndTime) {
 
     }
 
     @Override
-    public @Nullable UUID getAngryAt() {
+    public @org.jspecify.annotations.Nullable LazyEntityReference<LivingEntity> getAngryAt() {
         return null;
     }
 
     @Override
-    public void setAngryAt(@Nullable UUID angryAt) {
+    public void setAngryAt(@org.jspecify.annotations.Nullable LazyEntityReference<LivingEntity> angryAt) {
 
     }
 

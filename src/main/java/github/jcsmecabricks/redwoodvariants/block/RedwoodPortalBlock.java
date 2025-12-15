@@ -25,6 +25,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.*;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.rule.GameRules;
 import net.minecraft.world.tick.ScheduledTickView;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -83,7 +84,7 @@ public class RedwoodPortalBlock extends Block implements Portal{
     }
 
     @Override
-    protected void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity, EntityCollisionHandler handler) {
+    protected void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity, EntityCollisionHandler handler, boolean bl) {
         if (entity.canUsePortals(false)) {
             entity.tryUsePortal(this, pos);
         }
@@ -91,7 +92,7 @@ public class RedwoodPortalBlock extends Block implements Portal{
 
     public int getPortalDelay(ServerWorld world, Entity entity) {
         if (entity instanceof PlayerEntity playerEntity) {
-            return Math.max(0, world.getGameRules().getInt(playerEntity.getAbilities().invulnerable ? GameRules.PLAYERS_NETHER_PORTAL_CREATIVE_DELAY : GameRules.PLAYERS_NETHER_PORTAL_DEFAULT_DELAY));
+            return Math.max(0, world.getGameRules().getValue(playerEntity.getAbilities().invulnerable ? GameRules.PLAYERS_NETHER_PORTAL_CREATIVE_DELAY : GameRules.PLAYERS_NETHER_PORTAL_DEFAULT_DELAY));
         } else {
             return 0;
         }

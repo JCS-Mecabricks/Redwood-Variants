@@ -1,7 +1,7 @@
-// 1.21.6	-999999999-01-01T00:00:00	Redwood variants/Redwood Variants Recipes
+// 1.21.11	-999999999-01-01T00:00:00	Redwood variants/Redwood Variants Recipes
 764fbcb10b71e3435b4cf2ae5b4c9f1386f92c7f data/redwood-variants/advancement/recipes/misc/chest.json
 f51fb985c7581e25ecb5d985c1bf7345dbe9aee8 data/redwood-variants/advancement/recipes/misc/crafting_table.json
-ded18b0e0f12f40572bc51a4cc14e7e634c42dee data/redwood-variants/advancement/recipes/misc/hanging_redwood_sign.json
+924f33640e530ad08be5c819d1752e239ec23147 data/redwood-variants/advancement/recipes/misc/hanging_redwood_sign.json
 1cd29ffb24e14af3d64809480ce5b72067320816 data/redwood-variants/advancement/recipes/misc/redwood_boat.json
 817e841154021b53242c9f9fd1732eb749305d77 data/redwood-variants/advancement/recipes/misc/redwood_button.json
 e1e8c45f510b52206ea4bf4cf4c916378a701223 data/redwood-variants/advancement/recipes/misc/redwood_chest_boat.json
@@ -28,7 +28,7 @@ d74a38527800a6b1bc16b0d2df8fbd58f42da33a data/redwood-variants/advancement/recip
 efd60a138eaa58401c3a96ecfa37d1c30e14c9a5 data/redwood-variants/advancement/recipes/misc/wooden_sword.json
 969f57762c8bb175bda8ae3f63ca984f8ac42d61 data/redwood-variants/recipe/chest.json
 4c06985b520b7f498071d402d0e45ff5e145ebfe data/redwood-variants/recipe/crafting_table.json
-9551bfa2a20495e4b53d5daadbdfeae091e34117 data/redwood-variants/recipe/hanging_redwood_sign.json
+47a970a1be7f163927b4486acbe11a4d585dc861 data/redwood-variants/recipe/hanging_redwood_sign.json
 f584582fb53d636b9af136c6555b9992e1456263 data/redwood-variants/recipe/redwood_boat.json
 def318854144e41e4b0dd5465fbee4d4430eb5f2 data/redwood-variants/recipe/redwood_button.json
 035858d9d42170e1c86726484668a0ab88cf3a11 data/redwood-variants/recipe/redwood_chest_boat.json
