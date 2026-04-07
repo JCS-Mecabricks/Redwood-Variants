@@ -3,45 +3,45 @@ package github.jcsmecabricks.redwoodvariants.item;
 import github.jcsmecabricks.redwoodvariants.block.RedwoodPortalBlock;
 import github.jcsmecabricks.redwoodvariants.init.BlockInit;
 import github.jcsmecabricks.redwoodvariants.world.dimension.ModDimensions;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 
 public class ResourceRealmItem extends Item {
-    public ResourceRealmItem(Settings settings) {
+    public ResourceRealmItem(Properties settings) {
         super(settings);
     }
 
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        World world = context.getWorld();
-        BlockPos pos = context.getBlockPos();
+    public InteractionResult useOn(UseOnContext context) {
+        Level world = context.getLevel();
+        BlockPos pos = context.getClickedPos();
 
         if (context.getPlayer() != null) {
-            RegistryKey<World> currentDimension = world.getRegistryKey();
+            ResourceKey<Level> currentDimension = world.dimension();
 
-            if (currentDimension == ModDimensions.REDWOODDIM_LEVEL_KEY || currentDimension == World.OVERWORLD) {
+            if (currentDimension == ModDimensions.REDWOODDIM_LEVEL_KEY || currentDimension == Level.OVERWORLD) {
                 BlockPos[] frameChecks = {
-                        pos.add(-1, 0, 0),
-                        pos.add(1, 0, 0),
-                        pos.add(0, 1, 0),
-                        pos.add(0, 2, 0),
-                        pos.add(0, -1, 0)
+                        pos.offset(-1, 0, 0),
+                        pos.offset(1, 0, 0),
+                        pos.offset(0, 1, 0),
+                        pos.offset(0, 2, 0),
+                        pos.offset(0, -1, 0)
                 };
                 for (BlockPos framePos : frameChecks) {
                     if (((RedwoodPortalBlock) BlockInit.REDWOOD_PORTAL).trySpawnPortal(world, framePos)) {
                         world.playSound(context.getPlayer(), framePos,
-                                SoundEvents.BLOCK_PORTAL_TRIGGER, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                        return ActionResult.CONSUME;
+                                SoundEvents.PORTAL_TRIGGER, SoundSource.BLOCKS, 1.0F, 1.0F);
+                        return InteractionResult.CONSUME;
                     }
                 }
             }
         }
-        return ActionResult.FAIL;
+        return InteractionResult.FAIL;
     }
 }

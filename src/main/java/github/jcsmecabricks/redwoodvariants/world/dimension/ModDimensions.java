@@ -1,44 +1,49 @@
 package github.jcsmecabricks.redwoodvariants.world.dimension;
 
 import github.jcsmecabricks.redwoodvariants.RedwoodVariants;
-import net.minecraft.registry.Registerable;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.intprovider.UniformIntProvider;
-import net.minecraft.world.World;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.EnvironmentAttributes;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.clock.WorldClock;
+import net.minecraft.world.level.CardinalLighting;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
+
+import java.util.Optional;
 
 public class ModDimensions {
 
-    public static final RegistryKey<DimensionOptions> REDWOODDIM_KEY =
-            RegistryKey.of(RegistryKeys.DIMENSION, Identifier.of(RedwoodVariants.MOD_ID, "redwooddim"));
+    public static final ResourceKey<LevelStem> REDWOODDIM_KEY =
+            ResourceKey.create(Registries.LEVEL_STEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwooddim"));
 
-    public static final RegistryKey<World> REDWOODDIM_LEVEL_KEY =
-            RegistryKey.of(RegistryKeys.WORLD, Identifier.of(RedwoodVariants.MOD_ID, "redwooddim"));
+    public static final ResourceKey<Level> REDWOODDIM_LEVEL_KEY =
+            ResourceKey.create(Registries.DIMENSION, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwooddim"));
 
-    public static final RegistryKey<DimensionType> REDWOOD_DIM_TYPE =
-            RegistryKey.of(RegistryKeys.DIMENSION_TYPE, Identifier.of(RedwoodVariants.MOD_ID, "redwooddim_type"));
+    public static final ResourceKey<DimensionType> REDWOOD_DIM_TYPE =
+            ResourceKey.create(Registries.DIMENSION_TYPE, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwooddim_type"));
 
     static EnvironmentAttributeMap attributes =
             EnvironmentAttributeMap.builder()
-                    .with(EnvironmentAttributes.SKY_COLOR_VISUAL, 7907327)     // vanilla overworld sky
-                    .with(EnvironmentAttributes.FOG_COLOR_VISUAL, 12638463)
-                    .with(EnvironmentAttributes.WATER_FOG_COLOR_VISUAL, 4159204)
+                    .set(EnvironmentAttributes.SKY_COLOR, 7907327)     // vanilla overworld sky
+                    .set(EnvironmentAttributes.FOG_COLOR, 12638463)
+                    .set(EnvironmentAttributes.WATER_FOG_COLOR, 4159204)
                     .build();
 
-
-    public static void bootstrapType(Registerable<DimensionType> context) {
+    public static void bootstrapType(BootstrapContext<DimensionType> context) {
 
         context.register(REDWOOD_DIM_TYPE, new DimensionType(
                 true,
                 true,   // hasSkyLight
-                false,  // hasCeiling
+                false,
+                false,// hasCeiling
                 1.0,    // coordinateScale
                 -64,    // minY
                 256,    // height
@@ -48,14 +53,15 @@ public class ModDimensions {
 
                 // ❌ NO MONSTERS
                 new DimensionType.MonsterSettings(
-                        UniformIntProvider.create(15, 15),
+                        UniformInt.of(15, 15),
                         0
                 ),
 
                 DimensionType.Skybox.OVERWORLD,
-                DimensionType.CardinalLightType.DEFAULT,
+                CardinalLighting.Type.DEFAULT,
                 attributes,
-                RegistryEntryList.empty()
+                HolderSet.empty(),
+                Optional.empty()
         ));
     }
 

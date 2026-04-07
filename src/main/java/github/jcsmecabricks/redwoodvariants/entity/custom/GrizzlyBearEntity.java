@@ -1,41 +1,65 @@
 package github.jcsmecabricks.redwoodvariants.entity.custom;
 
 import github.jcsmecabricks.redwoodvariants.entity.ModEntities;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.FoodComponent;
-import net.minecraft.entity.*;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.Angerable;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.AnimationState;
+import net.minecraft.world.entity.EntityEvent;
+import net.minecraft.world.entity.EntityReference;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.NeutralMob;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.BreedGoal;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
+import net.minecraft.world.entity.ai.goal.FollowParentGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.PanicGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal;
+import net.minecraft.world.entity.ai.goal.TemptGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.OwnerHurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.OwnerHurtTargetGoal;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.polarbear.PolarBear;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class GrizzlyBearEntity extends TameableEntity implements Angerable {
-    private static final TrackedData<Boolean> ATTACKING =
-            DataTracker.registerData(GrizzlyBearEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+public class GrizzlyBearEntity extends TamableAnimal implements NeutralMob {
+    private static final EntityDataAccessor<Boolean> ATTACKING =
+            SynchedEntityData.defineId(GrizzlyBearEntity.class, EntityDataSerializers.BOOLEAN);
     private int warningSoundCooldown;
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
@@ -43,101 +67,101 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
     public final AnimationState attackAnimationState = new AnimationState();
     public int attackAnimationTimeout = 0;
 
-    public static final TrackedData<Long> LAST_POSE_TICK =
-            DataTracker.registerData(GrizzlyBearEntity.class, TrackedDataHandlerRegistry.LONG);
+    public static final EntityDataAccessor<Long> LAST_POSE_TICK =
+            SynchedEntityData.defineId(GrizzlyBearEntity.class, EntityDataSerializers.LONG);
 
     public final AnimationState sittingTransitionAnimationState = new AnimationState();
     public final AnimationState sittingAnimationState = new AnimationState();
     public final AnimationState standingTransitionAnimationState = new AnimationState();
 
-    public GrizzlyBearEntity(EntityType<? extends TameableEntity> entityType, World world) {
+    public GrizzlyBearEntity(EntityType<? extends TamableAnimal> entityType, Level world) {
         super(entityType, world);
     }
 
     @Override
-    public boolean isBreedingItem(ItemStack stack) {
-        return stack.isOf(Items.SALMON);
+    public boolean isFood(ItemStack stack) {
+        return stack.is(Items.SALMON);
     }
 
     @Override
-    public @Nullable PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
-        return ModEntities.GRIZZLY_BEAR.create(world, SpawnReason.BREEDING);
+    public @Nullable AgeableMob getBreedOffspring(ServerLevel world, AgeableMob entity) {
+        return ModEntities.GRIZZLY_BEAR.create(world, EntitySpawnReason.BREEDING);
     }
-    public static DefaultAttributeContainer.Builder createGrizzlyBearAttributes() {
-        return AnimalEntity.createAnimalAttributes()
-                .add(EntityAttributes.MAX_HEALTH, 35.0)
-                .add(EntityAttributes.FOLLOW_RANGE, 20.0)
-                .add(EntityAttributes.MOVEMENT_SPEED, 0.3)
-                .add(EntityAttributes.ATTACK_DAMAGE, 7.0);
-    }
-
-    @Override
-    public void setAttacking(boolean attacking) {
-        this.dataTracker.set(ATTACKING, attacking);
+    public static AttributeSupplier.Builder createGrizzlyBearAttributes() {
+        return Animal.createAnimalAttributes()
+                .add(Attributes.MAX_HEALTH, 35.0)
+                .add(Attributes.FOLLOW_RANGE, 20.0)
+                .add(Attributes.MOVEMENT_SPEED, 0.3)
+                .add(Attributes.ATTACK_DAMAGE, 7.0);
     }
 
     @Override
-    public boolean isAttacking() {
-      return this.dataTracker.get(ATTACKING);
+    public void setAggressive(boolean attacking) {
+        this.entityData.set(ATTACKING, attacking);
     }
 
     @Override
-    protected void initGoals() {
-        this.goalSelector.add(0, new SwimGoal(this));
-        this.goalSelector.add(1, new SitGoal(this));
-        this.goalSelector.add(1, new GrizzlyBearEntity.AttackGoal());
-        this.targetSelector.add(1, new TrackOwnerAttackerGoal(this));
-        this.targetSelector.add(2, new AttackWithOwnerGoal(this));
-        this.goalSelector.add(2, new AnimalMateGoal(this, 1.15D));
-        this.goalSelector.add(3, new TemptGoal(this, 1.25D, Ingredient.ofItems(Items.SALMON), false));
+    public boolean isAggressive() {
+      return this.entityData.get(ATTACKING);
+    }
+
+    @Override
+    protected void registerGoals() {
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
+        this.goalSelector.addGoal(1, new GrizzlyBearEntity.AttackGoal());
+        this.targetSelector.addGoal(1, new OwnerHurtByTargetGoal(this));
+        this.targetSelector.addGoal(2, new OwnerHurtTargetGoal(this));
+        this.goalSelector.addGoal(2, new BreedGoal(this, 1.15D));
+        this.goalSelector.addGoal(3, new TemptGoal(this, 1.25D, Ingredient.of(Items.SALMON), false));
         this.goalSelector
-                .add(1, new EscapeDangerGoal(this, 2.0, grizzlyBear -> grizzlyBear.isBaby() ? DamageTypeTags.PANIC_CAUSES : DamageTypeTags.PANIC_ENVIRONMENTAL_CAUSES));
-        this.goalSelector.add(4, new FollowParentGoal(this, 1.25));
-        this.goalSelector.add(5, new WanderAroundGoal(this, 1.0));
-        this.goalSelector.add(6, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
-        this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
-        this.goalSelector.add(7, new LookAroundGoal(this));
-        this.targetSelector.add(1, new GrizzlyBearEntity.GrizzlyBearRevengeGoal());
-        this.targetSelector.add(2, new GrizzlyBearEntity.ProtectBabiesGoal());
+                .addGoal(1, new PanicGoal(this, 2.0, grizzlyBear -> grizzlyBear.isBaby() ? DamageTypeTags.PANIC_CAUSES : DamageTypeTags.PANIC_ENVIRONMENTAL_CAUSES));
+        this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.25));
+        this.goalSelector.addGoal(5, new RandomStrollGoal(this, 1.0));
+        this.goalSelector.addGoal(6, new FollowOwnerGoal(this, 1.0, 10.0F, 2.0F));
+        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
+        this.targetSelector.addGoal(1, new GrizzlyBearEntity.GrizzlyBearRevengeGoal());
+        this.targetSelector.addGoal(2, new GrizzlyBearEntity.ProtectBabiesGoal());
     }
 
     @Override
-    public long getAngerEndTime() {
+    public long getPersistentAngerEndTime() {
         return 0;
     }
 
     @Override
-    public void setAngerEndTime(long angerEndTime) {
+    public void setPersistentAngerEndTime(long angerEndTime) {
 
     }
 
     @Override
-    public @org.jspecify.annotations.Nullable LazyEntityReference<LivingEntity> getAngryAt() {
+    public @org.jspecify.annotations.Nullable EntityReference<LivingEntity> getPersistentAngerTarget() {
         return null;
     }
 
     @Override
-    public void setAngryAt(@org.jspecify.annotations.Nullable LazyEntityReference<LivingEntity> angryAt) {
+    public void setPersistentAngerTarget(@org.jspecify.annotations.Nullable EntityReference<LivingEntity> angryAt) {
 
     }
 
     @Override
-    public void chooseRandomAngerTime() {
+    public void startPersistentAngerTimer() {
 
     }
 
-    class ProtectBabiesGoal extends ActiveTargetGoal<PlayerEntity> {
+    class ProtectBabiesGoal extends NearestAttackableTargetGoal<Player> {
         public ProtectBabiesGoal() {
-            super(GrizzlyBearEntity.this, PlayerEntity.class, 20, true, true, null);
+            super(GrizzlyBearEntity.this, Player.class, 20, true, true, null);
         }
         @Override
-        public boolean canStart() {
+        public boolean canUse() {
             if (GrizzlyBearEntity.this.isBaby()) {
                 return false;
             } else {
-                if (super.canStart()) {
-                    for (GrizzlyBearEntity grizzlyBearEntity : GrizzlyBearEntity.this.getEntityWorld()
-                            .getNonSpectatingEntities(GrizzlyBearEntity.class, GrizzlyBearEntity.this.getBoundingBox().expand(8.0, 4.0, 8.0))) {
+                if (super.canUse()) {
+                    for (GrizzlyBearEntity grizzlyBearEntity : GrizzlyBearEntity.this.level()
+                            .getEntitiesOfClass(GrizzlyBearEntity.class, GrizzlyBearEntity.this.getBoundingBox().inflate(8.0, 4.0, 8.0))) {
                         if (grizzlyBearEntity.isBaby()) {
                             return true;
                         }
@@ -153,13 +177,13 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
     public void tick() {
         super.tick();
 
-        if (this.getEntityWorld().isClient()) {
+        if (this.level().isClientSide()) {
             this.setupAnimationStates();
         }
     }
 
 
-    class GrizzlyBearRevengeGoal extends RevengeGoal {
+    class GrizzlyBearRevengeGoal extends HurtByTargetGoal {
         public GrizzlyBearRevengeGoal() {
             super(GrizzlyBearEntity.this);
         }
@@ -167,15 +191,15 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
             public void start() {
                 super.start();
                 if (GrizzlyBearEntity.this.isBaby()) {
-                    this.callSameTypeForRevenge();
+                    this.alertOthers();
                     this.stop();
                 }
             }
 
             @Override
-            protected void setMobEntityTarget(MobEntity mob, LivingEntity target) {
-                if (mob instanceof PolarBearEntity && !mob.isBaby()) {
-                    super.setMobEntityTarget(mob, target);
+            protected void alertOther(Mob mob, LivingEntity target) {
+                if (mob instanceof PolarBear && !mob.isBaby()) {
+                    super.alertOther(mob, target);
                 }
             }
         }
@@ -183,57 +207,57 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
     private void setupAnimationStates() {
         if (this.idleAnimationTimeout <= 0) {
             this.idleAnimationTimeout = 40;
-            this.idleAnimationState.start(this.age);
+            this.idleAnimationState.start(this.tickCount);
         } else {
             --this.idleAnimationTimeout;
         }
 
-        if(this.isAttacking() && attackAnimationTimeout <= 0) {
+        if(this.isAggressive() && attackAnimationTimeout <= 0) {
             attackAnimationTimeout = 40;
-            attackAnimationState.start(this.age);
+            attackAnimationState.start(this.tickCount);
         } else {
             --this.attackAnimationTimeout;
         }
 
-        if(!this.isAttacking()) {
+        if(!this.isAggressive()) {
             attackAnimationState.stop();
         }
 
         if (this.shouldUpdateSittingAnimations()) {
             this.standingTransitionAnimationState.stop();
             if (this.shouldPlaySittingTransitionAnimation()) {
-                this.sittingTransitionAnimationState.startIfNotRunning(this.age);
+                this.sittingTransitionAnimationState.startIfStopped(this.tickCount);
                 this.sittingAnimationState.stop();
             } else {
                 this.sittingTransitionAnimationState.stop();
-                this.sittingAnimationState.startIfNotRunning(this.age);
+                this.sittingAnimationState.startIfStopped(this.tickCount);
             }
         } else {
             this.sittingTransitionAnimationState.stop();
             this.sittingAnimationState.stop();
-            this.standingTransitionAnimationState.setRunning(this.isChangingPose() && this.getLastPoseTickDelta() >= 0L, this.age);
+            this.standingTransitionAnimationState.animateWhen(this.isChangingPose() && this.getLastPoseTickDelta() >= 0L, this.tickCount);
         }
     }
 
     private boolean shouldPlaySittingTransitionAnimation() {
-        return this.isSitting() && this.getLastPoseTickDelta() < 40L && this.getLastPoseTickDelta() >= 0L;
+        return this.isOrderedToSit() && this.getLastPoseTickDelta() < 40L && this.getLastPoseTickDelta() >= 0L;
     }
 
     public boolean shouldUpdateSittingAnimations() {
-        return this.getLastPoseTickDelta() < 0L != this.isSitting();
+        return this.getLastPoseTickDelta() < 0L != this.isOrderedToSit();
     }
 
     public long getLastPoseTickDelta() {
-        return this.getEntityWorld().getTime() - Math.abs(this.dataTracker.get(LAST_POSE_TICK));
+        return this.level().getGameTime() - Math.abs(this.entityData.get(LAST_POSE_TICK));
     }
 
     public boolean isChangingPose() {
         long l = this.getLastPoseTickDelta();
-        return l < (long)(this.isSitting() ? 40 : 52);
+        return l < (long)(this.isOrderedToSit() ? 40 : 52);
     }
 
     public void setLastPoseTick(long lastPoseTick) {
-        this.dataTracker.set(LAST_POSE_TICK, lastPoseTick);
+        this.entityData.set(LAST_POSE_TICK, lastPoseTick);
     }
 
     private void initLastPoseTick(long time) {
@@ -241,30 +265,30 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
     }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
-        super.initDataTracker(builder);
-        builder.add(LAST_POSE_TICK, 0L);
-        builder.add(ATTACKING, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(LAST_POSE_TICK, 0L);
+        builder.define(ATTACKING, false);
     }
 
     @Override
-    public boolean damage(ServerWorld world, DamageSource source, float amount) {
+    public boolean hurtServer(ServerLevel world, DamageSource source, float amount) {
         if (this.isInvulnerableTo(world, source)) {
             return false;
         } else {
-            this.setSitting(false);
-            return super.damage(world, source, amount);
+            this.setOrderedToSit(false);
+            return super.hurtServer(world, source, amount);
         }
     }
 
     @Override
-    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
-        this.initLastPoseTick(world.toServerWorld().getTime());
-        return super.initialize(world, difficulty, spawnReason, entityData);
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData entityData) {
+        this.initLastPoseTick(world.getLevel().getGameTime());
+        return super.finalizeSpawn(world, difficulty, spawnReason, entityData);
     }
 
     public void toggleSitting() {
-        if (this.isSitting()) {
+        if (this.isOrderedToSit()) {
             startStanding();
         } else {
             startSitting();
@@ -272,109 +296,109 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
     }
 
     public void startSitting() {
-        if (this.isSitting()) {
+        if (this.isOrderedToSit()) {
             return;
         }
-        this.playSound(SoundEvents.ENTITY_CAMEL_SIT);
-        this.setPose(EntityPose.SITTING);
-        this.emitGameEvent(GameEvent.ENTITY_ACTION);
-        this.setLastPoseTick(-this.getEntityWorld().getTime());
+        this.makeSound(SoundEvents.CAMEL_SIT);
+        this.setPose(Pose.SITTING);
+        this.gameEvent(GameEvent.ENTITY_ACTION);
+        this.setLastPoseTick(-this.level().getGameTime());
 
         setInSittingPose(true);
-        setSitting(true);
+        setOrderedToSit(true);
     }
 
     public void startStanding() {
-        if (!this.isSitting()) {
+        if (!this.isOrderedToSit()) {
             return;
         }
-        this.playSound(SoundEvents.ENTITY_CAMEL_STAND);
-        this.setPose(EntityPose.STANDING);
-        this.emitGameEvent(GameEvent.ENTITY_ACTION);
-        this.setLastPoseTick(this.getEntityWorld().getTime());
+        this.makeSound(SoundEvents.CAMEL_STAND);
+        this.setPose(Pose.STANDING);
+        this.gameEvent(GameEvent.ENTITY_ACTION);
+        this.setLastPoseTick(this.level().getGameTime());
 
         setInSittingPose(false);
-        setSitting(false);
+        setOrderedToSit(false);
     }
 
-    public boolean isSitting() {
-        return this.dataTracker.get(LAST_POSE_TICK) < 0L;
+    public boolean isOrderedToSit() {
+        return this.entityData.get(LAST_POSE_TICK) < 0L;
     }
 
 
     @Override
-    public ActionResult interactMob(PlayerEntity player, Hand hand) {
-        ItemStack itemStack = player.getStackInHand(hand);
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        ItemStack itemStack = player.getItemInHand(hand);
         Item item = itemStack.getItem();
-        if (this.isTamed()) {
-            if (this.isBreedingItem(itemStack) && this.getHealth() < this.getMaxHealth()) {
-                this.eat(player, hand, itemStack);
-                FoodComponent foodComponent = itemStack.get(DataComponentTypes.FOOD);
+        if (this.isTame()) {
+            if (this.isFood(itemStack) && this.getHealth() < this.getMaxHealth()) {
+                this.usePlayerItem(player, hand, itemStack);
+                FoodProperties foodComponent = itemStack.get(DataComponents.FOOD);
                 float f = foodComponent != null ? foodComponent.nutrition() : 1.0F;
                 this.heal(2.0F * f);
-                return ActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
 
 
                 {
 
-                    ActionResult actionResult = super.interactMob(player, hand);
-                    if (!actionResult.isAccepted() && this.isOwner(player)) {
+                    InteractionResult actionResult = super.mobInteract(player, hand);
+                    if (!actionResult.consumesAction() && this.isOwnedBy(player)) {
                         this.toggleSitting();
                         this.jumping = false;
                         this.navigation.stop();
                         this.setTarget(null);
-                        return ActionResult.SUCCESS.noIncrementStat();
+                        return InteractionResult.SUCCESS.withoutItem();
                     }
 
                     return actionResult;
             }
-        } else if (!this.getEntityWorld().isClient() && itemStack.isOf(Items.HONEY_BOTTLE) && !this.hasAngerTime()) {
-            itemStack.decrementUnlessCreative(1, player);
+        } else if (!this.level().isClientSide() && itemStack.is(Items.HONEY_BOTTLE) && !this.isAngry()) {
+            itemStack.consume(1, player);
             this.tryTame(player);
-            return ActionResult.SUCCESS_SERVER;
+            return InteractionResult.SUCCESS_SERVER;
         }
 
-        return super.interactMob(player, hand);
+        return super.mobInteract(player, hand);
     }
 
 
-    private void tryTame(PlayerEntity player) {
+    private void tryTame(Player player) {
         if (this.random.nextInt(3) == 0) {
-            this.setTamedBy(player);
+            this.tame(player);
             this.navigation.stop();
             this.setTarget(null);
-            this.setSitting(true);
-            this.getEntityWorld().sendEntityStatus(this, EntityStatuses.ADD_POSITIVE_PLAYER_REACTION_PARTICLES);
+            this.setOrderedToSit(true);
+            this.level().broadcastEntityEvent(this, EntityEvent.TAMING_SUCCEEDED);
         } else {
-            this.getEntityWorld().sendEntityStatus(this, EntityStatuses.ADD_NEGATIVE_PLAYER_REACTION_PARTICLES);
+            this.level().broadcastEntityEvent(this, EntityEvent.TAMING_FAILED);
         }
     }
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return this.isBaby() ? SoundEvents.ENTITY_POLAR_BEAR_AMBIENT_BABY : SoundEvents.ENTITY_POLAR_BEAR_AMBIENT;
+        return this.isBaby() ? SoundEvents.POLAR_BEAR_AMBIENT_BABY : SoundEvents.POLAR_BEAR_AMBIENT;
     }
 
 
 
     @Override
     protected @Nullable SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_POLAR_BEAR_HURT;
+        return SoundEvents.POLAR_BEAR_HURT;
     }
 
     @Override
     protected @Nullable SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_POLAR_BEAR_DEATH;
+        return SoundEvents.POLAR_BEAR_DEATH;
     }
 
     public void setWarning(boolean warning) {
-        this.dataTracker.set(ATTACKING, warning);
+        this.entityData.set(ATTACKING, warning);
     }
 
     protected void playWarningSound() {
         if (this.warningSoundCooldown <= 0) {
-            this.playSound(SoundEvents.ENTITY_POLAR_BEAR_WARNING);
+            this.makeSound(SoundEvents.POLAR_BEAR_WARNING);
             this.warningSoundCooldown = 40;
         }
     }
@@ -385,23 +409,23 @@ public class GrizzlyBearEntity extends TameableEntity implements Angerable {
         }
 
         @Override
-        protected void attack(LivingEntity target) {
-            if (this.canAttack(target)) {
-                this.resetCooldown();
-                this.mob.tryAttack(getServerWorld(this.mob), target);
+        protected void checkAndPerformAttack(LivingEntity target) {
+            if (this.canPerformAttack(target)) {
+                this.resetAttackCooldown();
+                this.mob.doHurtTarget(getServerLevel(this.mob), target);
                 GrizzlyBearEntity.this.setWarning(false);
-            } else if (this.mob.squaredDistanceTo(target) < (target.getWidth() + 3.0F) * (target.getWidth() + 3.0F)) {
-                if (this.isCooledDown()) {
+            } else if (this.mob.distanceToSqr(target) < (target.getBbWidth() + 3.0F) * (target.getBbWidth() + 3.0F)) {
+                if (this.isTimeToAttack()) {
                     GrizzlyBearEntity.this.setWarning(false);
-                    this.resetCooldown();
+                    this.resetAttackCooldown();
                 }
 
-                if (this.getCooldown() <= 10) {
+                if (this.getTicksUntilNextAttack() <= 10) {
                     GrizzlyBearEntity.this.setWarning(true);
                     GrizzlyBearEntity.this.playWarningSound();
                 }
             } else {
-                this.resetCooldown();
+                this.resetAttackCooldown();
                 GrizzlyBearEntity.this.setWarning(false);
             }
         }

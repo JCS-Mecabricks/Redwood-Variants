@@ -2,215 +2,214 @@ package github.jcsmecabricks.redwoodvariants.data.provider;
 
 import github.jcsmecabricks.redwoodvariants.init.BlockInit;
 import github.jcsmecabricks.redwoodvariants.init.ItemInit;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.recipe.RecipeExporter;
-import net.minecraft.data.recipe.RecipeGenerator;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.TagKey;
-
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import java.util.concurrent.CompletableFuture;
 
 public class RedwoodVariantsRecipeProvider extends FabricRecipeProvider {
-    public RedwoodVariantsRecipeProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+    public RedwoodVariantsRecipeProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 
     @Override
-    protected RecipeGenerator getRecipeGenerator(RegistryWrapper.WrapperLookup wrapperLookup, RecipeExporter recipeExporter) {
-        return new RecipeGenerator(wrapperLookup, recipeExporter) {
+    protected RecipeProvider createRecipeProvider(HolderLookup.Provider wrapperLookup, RecipeOutput recipeExporter) {
+        return new RecipeProvider(wrapperLookup, recipeExporter) {
             @Override
-            public void generate() {
-                createShaped(RecipeCategory.MISC, Items.STICK, 4)
-                        .input('A', BlockInit.REDWOOD_PLANKS)
+            public void buildRecipes() {
+                shaped(RecipeCategory.MISC, Items.STICK, 4)
+                        .define('A', BlockInit.REDWOOD_PLANKS)
                         .pattern(" A")
                         .pattern(" A")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, Blocks.CRAFTING_TABLE)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .save(output);
+                shaped(RecipeCategory.MISC, Blocks.CRAFTING_TABLE)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
                         .pattern("EE")
                         .pattern("EE")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, BlockInit.REDWOOD_FENCE_GATE)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
-                        .input('A', Items.STICK)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .save(output);
+                shaped(RecipeCategory.MISC, BlockInit.REDWOOD_FENCE_GATE)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
+                        .define('A', Items.STICK)
                         .pattern("EAE")
                         .pattern("EAE")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, BlockInit.REDWOOD_TRAPDOOR)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+                        .save(output);
+                shaped(RecipeCategory.MISC, BlockInit.REDWOOD_TRAPDOOR)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
                         .pattern("EEE")
                         .pattern("EEE")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, BlockInit.REDWOOD_DOOR, 3)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .save(output);
+                shaped(RecipeCategory.MISC, BlockInit.REDWOOD_DOOR, 3)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
                         .pattern("EE ")
                         .pattern("EE ")
                         .pattern("EE ")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, BlockInit.REDWOOD_FENCE, 3)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
-                        .input('A', Items.STICK)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .save(output);
+                shaped(RecipeCategory.MISC, BlockInit.REDWOOD_FENCE, 3)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
+                        .define('A', Items.STICK)
                         .pattern("AEA")
                         .pattern("AEA")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, BlockInit.REDWOOD_SLAB, 6)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+                        .save(output);
+                shaped(RecipeCategory.MISC, BlockInit.REDWOOD_SLAB, 6)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
                         .pattern("EEE")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .offerTo(exporter);
-                createShapeless(RecipeCategory.MISC, BlockInit.REDWOOD_BUTTON)
-                        .input(BlockInit.REDWOOD_PLANKS)
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, BlockInit.REDWOOD_PRESSURE_PLATE)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .save(output);
+                shapeless(RecipeCategory.MISC, BlockInit.REDWOOD_BUTTON)
+                        .requires(BlockInit.REDWOOD_PLANKS)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .save(output);
+                shaped(RecipeCategory.MISC, BlockInit.REDWOOD_PRESSURE_PLATE)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
                         .pattern("EE")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, BlockInit.REDWOOD_STAIRS, 4)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .save(output);
+                shaped(RecipeCategory.MISC, BlockInit.REDWOOD_STAIRS, 4)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
                         .pattern("  E")
                         .pattern(" EE")
                         .pattern("EEE")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, BlockInit.REDWOOD_WOOD, 3)
-                        .input('E', BlockInit.REDWOOD_LOG)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .save(output);
+                shaped(RecipeCategory.MISC, BlockInit.REDWOOD_WOOD, 3)
+                        .define('E', BlockInit.REDWOOD_LOG)
                         .pattern("EE")
                         .pattern("EE")
-                        .criterion(hasItem(BlockInit.REDWOOD_LOG), conditionsFromItem(BlockInit.REDWOOD_LOG))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, BlockInit.STRIPPED_REDWOOD_WOOD, 3)
-                        .input('E', BlockInit.STRIPPED_REDWOOD_LOG)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_LOG), has(BlockInit.REDWOOD_LOG))
+                        .save(output);
+                shaped(RecipeCategory.MISC, BlockInit.STRIPPED_REDWOOD_WOOD, 3)
+                        .define('E', BlockInit.STRIPPED_REDWOOD_LOG)
                         .pattern("EE")
                         .pattern("EE")
-                        .criterion(hasItem(BlockInit.STRIPPED_REDWOOD_LOG), conditionsFromItem(BlockInit.STRIPPED_REDWOOD_LOG))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, Items.WOODEN_AXE)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
-                        .input('A', Items.STICK)
+                        .unlockedBy(getHasName(BlockInit.STRIPPED_REDWOOD_LOG), has(BlockInit.STRIPPED_REDWOOD_LOG))
+                        .save(output);
+                shaped(RecipeCategory.MISC, Items.WOODEN_AXE)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
+                        .define('A', Items.STICK)
                         .pattern(" EE")
                         .pattern(" AE")
                         .pattern(" A ")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, ItemInit.RESOURCE_REALM)
-                        .input('E', BlockInit.REDWOOD_LOG)
-                        .input('A', Items.DIAMOND)
-                        .input('S', Items.STICK)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .save(output);
+                shaped(RecipeCategory.MISC, ItemInit.RESOURCE_REALM)
+                        .define('E', BlockInit.REDWOOD_LOG)
+                        .define('A', Items.DIAMOND)
+                        .define('S', Items.STICK)
                         .pattern("EAE")
                         .pattern("ASA")
                         .pattern("EAE")
-                        .criterion(hasItem(BlockInit.REDWOOD_LOG), conditionsFromItem(BlockInit.REDWOOD_LOG))
-                        .criterion(hasItem(Items.DIAMOND), conditionsFromItem(Items.DIAMOND))
-                        .criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, Items.WOODEN_HOE)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
-                        .input('A', Items.STICK)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_LOG), has(BlockInit.REDWOOD_LOG))
+                        .unlockedBy(getHasName(Items.DIAMOND), has(Items.DIAMOND))
+                        .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+                        .save(output);
+                shaped(RecipeCategory.MISC, Items.WOODEN_HOE)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
+                        .define('A', Items.STICK)
                         .pattern(" EE")
                         .pattern(" A ")
                         .pattern(" A ")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, Items.WOODEN_PICKAXE)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
-                        .input('A', Items.STICK)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+                        .save(output);
+                shaped(RecipeCategory.MISC, Items.WOODEN_PICKAXE)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
+                        .define('A', Items.STICK)
                         .pattern("EEE")
                         .pattern(" A ")
                         .pattern(" A ")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, Items.WOODEN_SHOVEL)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
-                        .input('A', Items.STICK)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+                        .save(output);
+                shaped(RecipeCategory.MISC, Items.WOODEN_SHOVEL)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
+                        .define('A', Items.STICK)
                         .pattern(" E ")
                         .pattern(" A ")
                         .pattern(" A ")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, Items.WOODEN_SWORD)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
-                        .input('A', Items.STICK)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+                        .save(output);
+                shaped(RecipeCategory.MISC, Items.WOODEN_SWORD)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
+                        .define('A', Items.STICK)
                         .pattern(" E ")
                         .pattern(" E ")
                         .pattern(" A ")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, Blocks.CHEST)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+                        .save(output);
+                shaped(RecipeCategory.MISC, Blocks.CHEST)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
                         .pattern("EEE")
                         .pattern("E E")
                         .pattern("EEE")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, ItemInit.HANGING_REDWOOD_SIGN, 6)
-                        .input('E', BlockInit.STRIPPED_REDWOOD_LOG)
-                        .input('A', Blocks.IRON_CHAIN)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+                        .save(output);
+                shaped(RecipeCategory.MISC, ItemInit.HANGING_REDWOOD_SIGN, 6)
+                        .define('E', BlockInit.STRIPPED_REDWOOD_LOG)
+                        .define('A', Blocks.IRON_CHAIN)
                         .pattern("A A")
                         .pattern("EEE")
                         .pattern("EEE")
-                        .criterion(hasItem(BlockInit.STRIPPED_REDWOOD_LOG), conditionsFromItem(BlockInit.STRIPPED_REDWOOD_LOG))
-                        .criterion(hasItem(Blocks.IRON_CHAIN), conditionsFromItem(Blocks.IRON_CHAIN))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, ItemInit.REDWOOD_BOAT)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
+                        .unlockedBy(getHasName(BlockInit.STRIPPED_REDWOOD_LOG), has(BlockInit.STRIPPED_REDWOOD_LOG))
+                        .unlockedBy(getHasName(Blocks.IRON_CHAIN), has(Blocks.IRON_CHAIN))
+                        .save(output);
+                shaped(RecipeCategory.MISC, ItemInit.REDWOOD_BOAT)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
                         .pattern("E E")
                         .pattern("EEE")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .offerTo(exporter);
-                createShapeless(RecipeCategory.MISC, ItemInit.REDWOOD_CHEST_BOAT)
-                        .input(ItemInit.REDWOOD_BOAT)
-                        .input(Blocks.CHEST)
-                        .criterion(hasItem(Blocks.CHEST), conditionsFromItem(Blocks.CHEST))
-                        .criterion(hasItem(ItemInit.REDWOOD_BOAT), conditionsFromItem(ItemInit.REDWOOD_BOAT))
-                        .offerTo(exporter);
-                createShaped(RecipeCategory.MISC, ItemInit.REDWOOD_SIGN, 3)
-                        .input('E', BlockInit.REDWOOD_PLANKS)
-                        .input('A', Items.STICK)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .save(output);
+                shapeless(RecipeCategory.MISC, ItemInit.REDWOOD_CHEST_BOAT)
+                        .requires(ItemInit.REDWOOD_BOAT)
+                        .requires(Blocks.CHEST)
+                        .unlockedBy(getHasName(Blocks.CHEST), has(Blocks.CHEST))
+                        .unlockedBy(getHasName(ItemInit.REDWOOD_BOAT), has(ItemInit.REDWOOD_BOAT))
+                        .save(output);
+                shaped(RecipeCategory.MISC, ItemInit.REDWOOD_SIGN, 3)
+                        .define('E', BlockInit.REDWOOD_PLANKS)
+                        .define('A', Items.STICK)
                         .pattern("EEE")
                         .pattern("EEE")
                         .pattern(" A ")
-                        .criterion(hasItem(BlockInit.REDWOOD_PLANKS), conditionsFromItem(BlockInit.REDWOOD_PLANKS))
-                        .criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK))
-                        .offerTo(exporter);
-                createShapeless(RecipeCategory.MISC, BlockInit.REDWOOD_PLANKS, 4)
-                        .input(BlockInit.REDWOOD_LOG)
-                        .criterion(hasItem(BlockInit.REDWOOD_LOG), conditionsFromItem(BlockInit.REDWOOD_LOG))
-                        .offerTo(exporter);
-                createShapeless(RecipeCategory.MISC, BlockInit.REDWOOD_PLANKS, 4)
-                        .input(BlockInit.REDWOOD_WOOD)
-                        .criterion(hasItem(BlockInit.REDWOOD_WOOD), conditionsFromItem(BlockInit.REDWOOD_WOOD))
-                        .offerTo(exporter, "redwood_planks_from_wood");
-                createShapeless(RecipeCategory.MISC, BlockInit.REDWOOD_PLANKS, 4)
-                        .input(BlockInit.STRIPPED_REDWOOD_LOG)
-                        .criterion(hasItem(BlockInit.STRIPPED_REDWOOD_LOG), conditionsFromItem(BlockInit.STRIPPED_REDWOOD_LOG))
-                        .offerTo(exporter, "redwood_planks_from_stripped_log");
-                createShapeless(RecipeCategory.MISC, BlockInit.REDWOOD_PLANKS, 4)
-                        .input(BlockInit.STRIPPED_REDWOOD_WOOD)
-                        .criterion(hasItem(BlockInit.STRIPPED_REDWOOD_WOOD), conditionsFromItem(BlockInit.STRIPPED_REDWOOD_WOOD))
-                        .offerTo(exporter, "redwood_planks_from_stripped_wood");
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
+                        .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
+                        .save(output);
+                shapeless(RecipeCategory.MISC, BlockInit.REDWOOD_PLANKS, 4)
+                        .requires(BlockInit.REDWOOD_LOG)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_LOG), has(BlockInit.REDWOOD_LOG))
+                        .save(output);
+                shapeless(RecipeCategory.MISC, BlockInit.REDWOOD_PLANKS, 4)
+                        .requires(BlockInit.REDWOOD_WOOD)
+                        .unlockedBy(getHasName(BlockInit.REDWOOD_WOOD), has(BlockInit.REDWOOD_WOOD))
+                        .save(output, "redwood_planks_from_wood");
+                shapeless(RecipeCategory.MISC, BlockInit.REDWOOD_PLANKS, 4)
+                        .requires(BlockInit.STRIPPED_REDWOOD_LOG)
+                        .unlockedBy(getHasName(BlockInit.STRIPPED_REDWOOD_LOG), has(BlockInit.STRIPPED_REDWOOD_LOG))
+                        .save(output, "redwood_planks_from_stripped_log");
+                shapeless(RecipeCategory.MISC, BlockInit.REDWOOD_PLANKS, 4)
+                        .requires(BlockInit.STRIPPED_REDWOOD_WOOD)
+                        .unlockedBy(getHasName(BlockInit.STRIPPED_REDWOOD_WOOD), has(BlockInit.STRIPPED_REDWOOD_WOOD))
+                        .save(output, "redwood_planks_from_stripped_wood");
             }
             private static String hasTag(TagKey<Item> tag) {
-                return "has_" + tag.id().toString();
+                return "has_" + tag.location().toString();
             }
         };
     }

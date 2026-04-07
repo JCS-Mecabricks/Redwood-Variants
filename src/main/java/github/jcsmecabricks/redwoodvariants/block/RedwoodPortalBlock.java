@@ -3,30 +3,41 @@ package github.jcsmecabricks.redwoodvariants.block;
 import com.mojang.serialization.MapCodec;
 import github.jcsmecabricks.redwoodvariants.world.dimension.ModDimensions;
 import github.jcsmecabricks.redwoodvariants.world.dimension.ModTeleporter;
-import net.minecraft.block.*;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.PositionFlag;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.BlockUtil;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.*;
-import net.minecraft.world.border.WorldBorder;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.rule.GameRules;
-import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+import net.minecraft.world.entity.Relative;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Portal;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
@@ -34,7 +45,7 @@ import java.util.Optional;
 
 
 public class RedwoodPortalBlock extends Block implements Portal{
-    public static final MapCodec<RedwoodPortalBlock> CODEC = createCodec(RedwoodPortalBlock::new);
+    public static final MapCodec<RedwoodPortalBlock> CODEC = simpleCodec(RedwoodPortalBlock::new);
     public static final EnumProperty<Direction.Axis> AXIS;
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -42,16 +53,16 @@ public class RedwoodPortalBlock extends Block implements Portal{
     protected static final VoxelShape X_SHAPE;
     protected static final VoxelShape Z_SHAPE;
 
-    public MapCodec<RedwoodPortalBlock> getCodec() {
+    public MapCodec<RedwoodPortalBlock> codec() {
         return CODEC;
     }
 
-    public RedwoodPortalBlock(Settings settings) {
+    public RedwoodPortalBlock(Properties settings) {
         super(settings);
-        this.setDefaultState(this.stateManager.getDefaultState().with(AXIS, Direction.Axis.X));
+        this.registerDefaultState(this.stateDefinition.any().setValue(AXIS, Direction.Axis.X));
     }
 
-    public boolean trySpawnPortal(World world, BlockPos pos) {
+    public boolean trySpawnPortal(Level world, BlockPos pos) {
         Optional<RedwoodPortal> optionalPortal = RedwoodPortal.getNewPortal(world, pos, Direction.Axis.X);if (optionalPortal.isPresent()) {
         RedwoodPortal portal = optionalPortal.get();if (!portal.wasAlreadyValid()) {
             portal.createPortal(world);
@@ -61,13 +72,13 @@ public class RedwoodPortalBlock extends Block implements Portal{
         return false;
     }
 
-    public BlockState getPlacementState(ItemPlacementContext context) {
-        Direction.Axis axis = context.getHorizontalPlayerFacing().rotateYClockwise().getAxis();
-        return this.getDefaultState().with(AXIS, axis);
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Direction.Axis axis = context.getHorizontalDirection().getClockWise().getAxis();
+        return this.defaultBlockState().setValue(AXIS, axis);
     }
 
-    protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        switch (state.get(AXIS)) {
+    protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        switch (state.getValue(AXIS)) {
             case Z:
                 return Z_SHAPE;
             case X:
@@ -76,109 +87,109 @@ public class RedwoodPortalBlock extends Block implements Portal{
         }
     }
 
-    protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
+    protected BlockState updateShape(BlockState state, LevelReader world, ScheduledTickAccess tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
         Direction.Axis axis = direction.getAxis();
-        Direction.Axis axis2 = state.get(AXIS);
+        Direction.Axis axis2 = state.getValue(AXIS);
         boolean bl = axis2 != axis && axis.isHorizontal();
-        return !bl && !neighborState.isOf(this) && !RedwoodPortal.getOnAxis(world, pos, axis2).wasAlreadyValid() ? Blocks.AIR.getDefaultState() : super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+        return !bl && !neighborState.is(this) && !RedwoodPortal.getOnAxis(world, pos, axis2).wasAlreadyValid() ? Blocks.AIR.defaultBlockState() : super.updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
     }
 
     @Override
-    protected void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity, EntityCollisionHandler handler, boolean bl) {
-        if (entity.canUsePortals(false)) {
-            entity.tryUsePortal(this, pos);
+    protected void entityInside(BlockState state, Level world, BlockPos pos, Entity entity, InsideBlockEffectApplier handler, boolean bl) {
+        if (entity.canUsePortal(false)) {
+            entity.setAsInsidePortal(this, pos);
         }
     }
 
-    public int getPortalDelay(ServerWorld world, Entity entity) {
-        if (entity instanceof PlayerEntity playerEntity) {
-            return Math.max(0, world.getGameRules().getValue(playerEntity.getAbilities().invulnerable ? GameRules.PLAYERS_NETHER_PORTAL_CREATIVE_DELAY : GameRules.PLAYERS_NETHER_PORTAL_DEFAULT_DELAY));
+    public int getPortalTransitionTime(ServerLevel world, Entity entity) {
+        if (entity instanceof Player playerEntity) {
+            return Math.max(0, world.getGameRules().get(playerEntity.getAbilities().invulnerable ? GameRules.PLAYERS_NETHER_PORTAL_CREATIVE_DELAY : GameRules.PLAYERS_NETHER_PORTAL_DEFAULT_DELAY));
         } else {
             return 0;
         }
     }
 
     @Nullable
-    public TeleportTarget createTeleportTarget(ServerWorld world, Entity entity, BlockPos pos) {
-        RegistryKey<World> registryKey = world.getRegistryKey() == ModDimensions.REDWOODDIM_LEVEL_KEY ? World.OVERWORLD : ModDimensions.REDWOODDIM_LEVEL_KEY;
-        ServerWorld serverWorld = world.getServer().getWorld(registryKey);
+    public TeleportTransition getPortalDestination(ServerLevel world, Entity entity, BlockPos pos) {
+        ResourceKey<Level> registryKey = world.dimension() == ModDimensions.REDWOODDIM_LEVEL_KEY ? Level.OVERWORLD : ModDimensions.REDWOODDIM_LEVEL_KEY;
+        ServerLevel serverWorld = world.getServer().getLevel(registryKey);
         if (serverWorld == null) {
             return null;
         } else {
-            boolean bl = serverWorld.getRegistryKey() == ModDimensions.REDWOODDIM_LEVEL_KEY;
+            boolean bl = serverWorld.dimension() == ModDimensions.REDWOODDIM_LEVEL_KEY;
             WorldBorder worldBorder = serverWorld.getWorldBorder();
-            double d = DimensionType.getCoordinateScaleFactor(world.getDimension(), serverWorld.getDimension());
-            BlockPos blockPos = worldBorder.clampFloored(entity.getX() * d, entity.getY(), entity.getZ() * d);
+            double d = DimensionType.getTeleportationScale(world.dimensionType(), serverWorld.dimensionType());
+            BlockPos blockPos = worldBorder.clampToBounds(entity.getX() * d, entity.getY(), entity.getZ() * d);
             return this.getOrCreateExitPortalTarget(serverWorld, entity, pos, blockPos, bl, worldBorder);
         }
     }
 
     @Nullable
-    private TeleportTarget getOrCreateExitPortalTarget(ServerWorld world, Entity entity, BlockPos pos, BlockPos scaledPos, boolean inRedwood, WorldBorder worldBorder) {
+    private TeleportTransition getOrCreateExitPortalTarget(ServerLevel world, Entity entity, BlockPos pos, BlockPos scaledPos, boolean inRedwood, WorldBorder worldBorder) {
         ModTeleporter modTeleporter = new ModTeleporter(world);
         Optional<BlockPos> optional = modTeleporter.getPortalPos(scaledPos, inRedwood, worldBorder);
-        BlockLocating.Rectangle rectangle;
-        TeleportTarget.PostDimensionTransition postDimensionTransition;
+        BlockUtil.FoundRectangle rectangle;
+        TeleportTransition.PostTeleportTransition postDimensionTransition;
         if (optional.isPresent()) {
             BlockPos blockPos = optional.get();
             BlockState blockState = world.getBlockState(blockPos);
-            rectangle = BlockLocating.getLargestRectangle(blockPos, blockState.get(Properties.HORIZONTAL_AXIS), 21, Direction.Axis.Y, 21, (posx) -> world.getBlockState(posx) == blockState);
-            postDimensionTransition = TeleportTarget.SEND_TRAVEL_THROUGH_PORTAL_PACKET.then((entityx) -> entityx.addPortalChunkTicketAt(blockPos));
+            rectangle = BlockUtil.getLargestRectangleAround(blockPos, blockState.getValue(BlockStateProperties.HORIZONTAL_AXIS), 21, Direction.Axis.Y, 21, (posx) -> world.getBlockState(posx) == blockState);
+            postDimensionTransition = TeleportTransition.PLAY_PORTAL_SOUND.then((entityx) -> entityx.placePortalTicket(blockPos));
         } else {
-            Direction.Axis axis = entity.getEntityWorld().getBlockState(pos).getOrEmpty(AXIS).orElse(Direction.Axis.X);
-            Optional<BlockLocating.Rectangle> optional2 = modTeleporter.createPortal(scaledPos, axis);
+            Direction.Axis axis = entity.level().getBlockState(pos).getOptionalValue(AXIS).orElse(Direction.Axis.X);
+            Optional<BlockUtil.FoundRectangle> optional2 = modTeleporter.createPortal(scaledPos, axis);
             if (optional2.isEmpty()) {
                 LOGGER.error("Unable to create a portal, likely target out of worldborder");
                 return null;
             }
 
-            rectangle = (BlockLocating.Rectangle)optional2.get();
-            postDimensionTransition = TeleportTarget.SEND_TRAVEL_THROUGH_PORTAL_PACKET.then(TeleportTarget.ADD_PORTAL_CHUNK_TICKET);
+            rectangle = (BlockUtil.FoundRectangle)optional2.get();
+            postDimensionTransition = TeleportTransition.PLAY_PORTAL_SOUND.then(TeleportTransition.PLACE_PORTAL_TICKET);
         }
 
         return getExitPortalTarget(entity, pos, rectangle, world, postDimensionTransition);
     }
 
-    private static TeleportTarget getExitPortalTarget(Entity entity, BlockPos pos, BlockLocating.Rectangle exitPortalRectangle, ServerWorld world, TeleportTarget.PostDimensionTransition postDimensionTransition) {
-        BlockState blockState = entity.getEntityWorld().getBlockState(pos);
+    private static TeleportTransition getExitPortalTarget(Entity entity, BlockPos pos, BlockUtil.FoundRectangle exitPortalRectangle, ServerLevel world, TeleportTransition.PostTeleportTransition postDimensionTransition) {
+        BlockState blockState = entity.level().getBlockState(pos);
         Direction.Axis axis;
-        Vec3d vec3d;
-        if (blockState.contains(Properties.HORIZONTAL_AXIS)) {
-            axis = blockState.get(Properties.HORIZONTAL_AXIS);
-            BlockLocating.Rectangle rectangle = BlockLocating.getLargestRectangle(pos, axis, 21, Direction.Axis.Y, 21, (posx) -> entity.getEntityWorld().getBlockState(posx) == blockState);
-            vec3d = entity.positionInPortal(axis, rectangle);
+        Vec3 vec3d;
+        if (blockState.hasProperty(BlockStateProperties.HORIZONTAL_AXIS)) {
+            axis = blockState.getValue(BlockStateProperties.HORIZONTAL_AXIS);
+            BlockUtil.FoundRectangle rectangle = BlockUtil.getLargestRectangleAround(pos, axis, 21, Direction.Axis.Y, 21, (posx) -> entity.level().getBlockState(posx) == blockState);
+            vec3d = entity.getRelativePortalPosition(axis, rectangle);
         } else {
             axis = Direction.Axis.X;
-            vec3d = new Vec3d(0.5F, 0.0F, 0.0F);
+            vec3d = new Vec3(0.5F, 0.0F, 0.0F);
         }
 
         return getExitPortalTarget(world, exitPortalRectangle, axis, vec3d, entity, postDimensionTransition);
     }
 
-    private static TeleportTarget getExitPortalTarget(ServerWorld world, BlockLocating.Rectangle exitPortalRectangle, Direction.Axis axis, Vec3d positionInPortal, Entity entity, TeleportTarget.PostDimensionTransition postDimensionTransition) {
-        BlockPos blockPos = exitPortalRectangle.lowerLeft;
+    private static TeleportTransition getExitPortalTarget(ServerLevel world, BlockUtil.FoundRectangle exitPortalRectangle, Direction.Axis axis, Vec3 positionInPortal, Entity entity, TeleportTransition.PostTeleportTransition postDimensionTransition) {
+        BlockPos blockPos = exitPortalRectangle.minCorner;
         BlockState blockState = world.getBlockState(blockPos);
-        Direction.Axis axis2 = blockState.getOrEmpty(Properties.HORIZONTAL_AXIS).orElse(Direction.Axis.X);
-        double d = exitPortalRectangle.width;
-        double e = exitPortalRectangle.height;
+        Direction.Axis axis2 = blockState.getOptionalValue(BlockStateProperties.HORIZONTAL_AXIS).orElse(Direction.Axis.X);
+        double d = exitPortalRectangle.axis1Size;
+        double e = exitPortalRectangle.axis2Size;
         EntityDimensions entityDimensions = entity.getDimensions(entity.getPose());
         int i = axis == axis2 ? 0 : 90;
-        double f = (double)entityDimensions.width() / (double)2.0F + (d - (double)entityDimensions.width()) * positionInPortal.getX();
-        double g = (e - (double)entityDimensions.height()) * positionInPortal.getY();
-        double h = (double)0.5F + positionInPortal.getZ();
+        double f = (double)entityDimensions.width() / (double)2.0F + (d - (double)entityDimensions.width()) * positionInPortal.x();
+        double g = (e - (double)entityDimensions.height()) * positionInPortal.y();
+        double h = (double)0.5F + positionInPortal.z();
         boolean bl = axis2 == Direction.Axis.X;
-        Vec3d vec3d = new Vec3d((double)blockPos.getX() + (bl ? f : h), (double)blockPos.getY() + g, (double)blockPos.getZ() + (bl ? h : f));
-        Vec3d vec3d2 = RedwoodPortal.findOpenPosition(vec3d, world, entity, entityDimensions);
-        return new TeleportTarget(world, vec3d2, Vec3d.ZERO, (float)i, 0.0F, PositionFlag.combine(PositionFlag.DELTA, PositionFlag.ROT), postDimensionTransition);
+        Vec3 vec3d = new Vec3((double)blockPos.getX() + (bl ? f : h), (double)blockPos.getY() + g, (double)blockPos.getZ() + (bl ? h : f));
+        Vec3 vec3d2 = RedwoodPortal.findOpenPosition(vec3d, world, entity, entityDimensions);
+        return new TeleportTransition(world, vec3d2, Vec3.ZERO, (float)i, 0.0F, Relative.union(Relative.DELTA, Relative.ROTATION), postDimensionTransition);
     }
 
-    public Effect getPortalEffect() {
-        return Effect.CONFUSION;
+    public Transition getLocalTransition() {
+        return Transition.CONFUSION;
     }
 
-    public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+    public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource random) {
         if (random.nextInt(100) == 0) {
-            world.playSound((null), pos, SoundEvents.BLOCK_PORTAL_AMBIENT, SoundCategory.BLOCKS, 0.5F, random.nextFloat() * 0.4F + 0.8F);
+            world.playSound((null), pos, SoundEvents.PORTAL_AMBIENT, SoundSource.BLOCKS, 0.5F, random.nextFloat() * 0.4F + 0.8F);
         }
 
         for(int i = 0; i < 4; ++i) {
@@ -189,7 +200,7 @@ public class RedwoodPortalBlock extends Block implements Portal{
             double h = ((double)random.nextFloat() - (double)0.5F) * (double)0.5F;
             double j = ((double)random.nextFloat() - (double)0.5F) * (double)0.5F;
             int k = random.nextInt(2) * 2 - 1;
-            if (!world.getBlockState(pos.west()).isOf(this) && !world.getBlockState(pos.east()).isOf(this)) {
+            if (!world.getBlockState(pos.west()).is(this) && !world.getBlockState(pos.east()).is(this)) {
                 d = (double)pos.getX() + (double)0.5F + (double)0.25F * (double)k;
                 g = random.nextFloat() * 2.0F * (float)k;
             } else {
@@ -200,20 +211,20 @@ public class RedwoodPortalBlock extends Block implements Portal{
 
     }
 
-    protected ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state, boolean includeData) {
+    protected ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state, boolean includeData) {
         return ItemStack.EMPTY;
     }
 
-    protected BlockState rotate(BlockState state, BlockRotation rotation) {
+    protected BlockState rotate(BlockState state, Rotation rotation) {
         switch (rotation) {
             case COUNTERCLOCKWISE_90:
             case CLOCKWISE_90:
-                switch (state.get(AXIS)) {
+                switch (state.getValue(AXIS)) {
                     case Z -> {
-                        return state.with(AXIS, Direction.Axis.X);
+                        return state.setValue(AXIS, Direction.Axis.X);
                     }
                     case X -> {
-                        return state.with(AXIS, Direction.Axis.Z);
+                        return state.setValue(AXIS, Direction.Axis.Z);
                     }
                     default -> {
                         return state;
@@ -224,13 +235,13 @@ public class RedwoodPortalBlock extends Block implements Portal{
         }
     }
 
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(AXIS);
     }
 
     static {
-        AXIS = Properties.HORIZONTAL_AXIS;
-        X_SHAPE = Block.createCuboidShape(0.0F, 0.0F, 6.0F, 16.0F, 16.0F, 10.0F);
-        Z_SHAPE = Block.createCuboidShape(6.0F, 0.0F, 0.0F, 10.0F, 16.0F, 16.0F);
+        AXIS = BlockStateProperties.HORIZONTAL_AXIS;
+        X_SHAPE = Block.box(0.0F, 0.0F, 6.0F, 16.0F, 16.0F, 10.0F);
+        Z_SHAPE = Block.box(6.0F, 0.0F, 0.0F, 10.0F, 16.0F, 16.0F);
     }
 }

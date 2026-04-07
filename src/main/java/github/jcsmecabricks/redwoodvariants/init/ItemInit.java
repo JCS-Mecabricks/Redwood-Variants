@@ -5,48 +5,47 @@ import github.jcsmecabricks.redwoodvariants.RedwoodVariants;
 import github.jcsmecabricks.redwoodvariants.entity.ModBoats;
 import github.jcsmecabricks.redwoodvariants.entity.ModEntities;
 import github.jcsmecabricks.redwoodvariants.item.ResourceRealmItem;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.TypedEntityData;
-import net.minecraft.item.HangingSignItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.SignItem;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
-
 import java.util.function.Function;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.HangingSignItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SignItem;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.component.TypedEntityData;
 
 public class ItemInit {
     public static final Item REDWOOD_SIGN = registerItem("redwood_sign",
-            new SignItem(BlockInit.STANDING_REDWOOD_SIGN, BlockInit.WALL_REDWOOD_SIGN, new Item.Settings().maxCount(16)
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(RedwoodVariants.MOD_ID, "redwood_sign")))));
+            new SignItem(BlockInit.STANDING_REDWOOD_SIGN, BlockInit.WALL_REDWOOD_SIGN, new Item.Properties().stacksTo(16)
+                    .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwood_sign")))));
     public static final Item HANGING_REDWOOD_SIGN = registerItem("hanging_redwood_sign",
-            new HangingSignItem(BlockInit.HANGING_REDWOOD_SIGN, BlockInit.WALL_HANGING_REDWOOD_SIGN, new Item.Settings().maxCount(16)
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(RedwoodVariants.MOD_ID, "hanging_redwood_sign")))));
+            new HangingSignItem(BlockInit.HANGING_REDWOOD_SIGN, BlockInit.WALL_HANGING_REDWOOD_SIGN, new Item.Properties().stacksTo(16)
+                    .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "hanging_redwood_sign")))));
 
     public static final Item RESOURCE_REALM = registerItem("resource_realm",
-            new ResourceRealmItem(new Item.Settings()
-                    .maxCount(1)
-                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(RedwoodVariants.MOD_ID, "resource_realm")))));
+            new ResourceRealmItem(new Item.Properties()
+                    .stacksTo(1)
+                    .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "resource_realm")))));
 
     public static final Item GRIZZLY_SPAWN_EGG = registerSpawnEggItem("grizzly_spawn_egg",
             settings -> new SpawnEggItem(settings.component(
-                    DataComponentTypes.ENTITY_DATA,
-                    TypedEntityData.create(ModEntities.GRIZZLY_BEAR, new NbtCompound())
+                    DataComponents.ENTITY_DATA,
+                    TypedEntityData.of(ModEntities.GRIZZLY_BEAR, new CompoundTag())
             ))
     );
 
     private static Item registerItem(String name, Item item) {
-        return Registry.register(Registries.ITEM, Identifier.of(RedwoodVariants.MOD_ID, name), item);
+        return Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, name), item);
     }
 
-    private static Item registerSpawnEggItem(String name, Function<Item.Settings, Item> function) {
-        return Registry.register(Registries.ITEM, Identifier.of(RedwoodVariants.MOD_ID, name),
-                function.apply(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(RedwoodVariants.MOD_ID, name)))));
+    private static Item registerSpawnEggItem(String name, Function<Item.Properties, Item> function) {
+        return Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, name),
+                function.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, name)))));
     }
 
     public static final Item REDWOOD_BOAT = TerraformBoatItemHelper.registerBoatItem(

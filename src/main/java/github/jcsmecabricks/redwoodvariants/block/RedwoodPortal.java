@@ -1,18 +1,22 @@
 package github.jcsmecabricks.redwoodvariants.block;
 
 import github.jcsmecabricks.redwoodvariants.init.BlockInit;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.*;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockLocating;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.BlockUtil;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +28,7 @@ public class RedwoodPortal {
     public static final int MAX_WIDTH = 21;
     private static final int MIN_HEIGHT = 3;
     public static final int MAX_HEIGHT = 21;
-    private static final AbstractBlock.ContextPredicate IS_VALID_FRAME_BLOCK = (state, world, pos) -> state.isOf(BlockInit.REDWOOD_PLANKS);
+    private static final BlockBehaviour.StatePredicate IS_VALID_FRAME_BLOCK = (state, world, pos) -> state.is(BlockInit.REDWOOD_PLANKS);
     private static final float FALLBACK_THRESHOLD = 4.0F;
     private static final double HEIGHT_STRETCH = (double)1.0F;
     private final Direction.Axis axis;
@@ -42,11 +46,11 @@ public class RedwoodPortal {
         this.width = width;
         this.height = height;
     }
-    public static Optional<RedwoodPortal> getNewPortal(WorldAccess world, BlockPos pos, Direction.Axis firstCheckedAxis) {
+    public static Optional<RedwoodPortal> getNewPortal(LevelAccessor world, BlockPos pos, Direction.Axis firstCheckedAxis) {
         return getOrEmpty(world, pos, (areaHelper) -> areaHelper.isValid() && areaHelper.foundPortalBlocks == 0, firstCheckedAxis);
     }
 
-    public static Optional<RedwoodPortal> getOrEmpty(WorldAccess world, BlockPos pos, Predicate<RedwoodPortal> validator, Direction.Axis firstCheckedAxis) {
+    public static Optional<RedwoodPortal> getOrEmpty(LevelAccessor world, BlockPos pos, Predicate<RedwoodPortal> validator, Direction.Axis firstCheckedAxis) {
         Optional<RedwoodPortal> optional = Optional.of(getOnAxis(world, pos, firstCheckedAxis)).filter(validator);
         if (optional.isPresent()) {
             return optional;
@@ -56,7 +60,7 @@ public class RedwoodPortal {
         }
     }
 
-    public static RedwoodPortal getOnAxis(BlockView world, BlockPos pos, Direction.Axis axis) {
+    public static RedwoodPortal getOnAxis(BlockGetter world, BlockPos pos, Direction.Axis axis) {
         Direction direction = axis == Direction.Axis.X ? Direction.WEST : Direction.SOUTH;
         BlockPos blockPos = getLowerCorner(world, direction, pos);
         if (blockPos == null) {
@@ -74,22 +78,22 @@ public class RedwoodPortal {
     }
 
     @Nullable
-    private static BlockPos getLowerCorner(BlockView world, Direction direction, BlockPos pow) {
-        for(int i = Math.max(world.getBottomY(), pow.getY() - 21); pow.getY() > i && validStateInsidePortal(world.getBlockState(pow.down())); pow = pow.down()) {
+    private static BlockPos getLowerCorner(BlockGetter world, Direction direction, BlockPos pow) {
+        for(int i = Math.max(world.getMinY(), pow.getY() - 21); pow.getY() > i && validStateInsidePortal(world.getBlockState(pow.below())); pow = pow.below()) {
         }
 
         Direction direction2 = direction.getOpposite();
         int j = getWidth(world, pow, direction2) - 1;
-        return j < 0 ? null : pow.offset(direction2, j);
+        return j < 0 ? null : pow.relative(direction2, j);
     }
 
-    private static int getValidatedWidth(BlockView world, BlockPos lowerCorner, Direction negativeDir) {
+    private static int getValidatedWidth(BlockGetter world, BlockPos lowerCorner, Direction negativeDir) {
         int i = getWidth(world, lowerCorner, negativeDir);
         return i >= 2 && i <= 21 ? i : 0;
     }
 
-    private static int getWidth(BlockView world, BlockPos lowerCorner, Direction negativeDir) {
-        BlockPos.Mutable mutable = new BlockPos.Mutable();
+    private static int getWidth(BlockGetter world, BlockPos lowerCorner, Direction negativeDir) {
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
         for(int i = 0; i <= 21; ++i) {
             mutable.set(lowerCorner).move(negativeDir, i);
@@ -110,15 +114,15 @@ public class RedwoodPortal {
         return 0;
     }
 
-    private static int getHeight(BlockView world, BlockPos lowerCorner, Direction negativeDir, int width, MutableInt foundPortalBlocks) {
-        BlockPos.Mutable mutable = new BlockPos.Mutable();
+    private static int getHeight(BlockGetter world, BlockPos lowerCorner, Direction negativeDir, int width, MutableInt foundPortalBlocks) {
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
         int i = getPotentialHeight(world, lowerCorner, negativeDir, mutable, width, foundPortalBlocks);
         return i >= 3 && i <= 21 && isHorizontalFrameValid(world, lowerCorner, negativeDir, mutable, width, i) ? i : 0;
     }
 
-    private static boolean isHorizontalFrameValid(BlockView world, BlockPos lowerCorner, Direction direction, BlockPos.Mutable pos, int width, int height) {
+    private static boolean isHorizontalFrameValid(BlockGetter world, BlockPos lowerCorner, Direction direction, BlockPos.MutableBlockPos pos, int width, int height) {
         for(int i = 0; i < width; ++i) {
-            BlockPos.Mutable mutable = pos.set(lowerCorner).move(Direction.UP, height).move(direction, i);
+            BlockPos.MutableBlockPos mutable = pos.set(lowerCorner).move(Direction.UP, height).move(direction, i);
             if (!IS_VALID_FRAME_BLOCK.test(world.getBlockState(mutable), world, mutable)) {
                 return false;
             }
@@ -127,7 +131,7 @@ public class RedwoodPortal {
         return true;
     }
 
-    private static int getPotentialHeight(BlockView world, BlockPos lowerCorner, Direction negativeDir, BlockPos.Mutable pos, int width, MutableInt foundPortalBlocks) {
+    private static int getPotentialHeight(BlockGetter world, BlockPos lowerCorner, Direction negativeDir, BlockPos.MutableBlockPos pos, int width, MutableInt foundPortalBlocks) {
         for(int i = 0; i < 21; ++i) {
             pos.set(lowerCorner).move(Direction.UP, i).move(negativeDir, -1);
             if (!IS_VALID_FRAME_BLOCK.test(world.getBlockState(pos), world, pos)) {
@@ -146,7 +150,7 @@ public class RedwoodPortal {
                     return i;
                 }
 
-                if (blockState.isOf(BlockInit.REDWOOD_PORTAL)) {
+                if (blockState.is(BlockInit.REDWOOD_PORTAL)) {
                     foundPortalBlocks.increment();
                 }
             }
@@ -156,30 +160,30 @@ public class RedwoodPortal {
     }
 
     private static boolean validStateInsidePortal(BlockState state) {
-        return state.isAir() || state.isIn(BlockTags.FIRE) || state.isOf(BlockInit.REDWOOD_PORTAL);
+        return state.isAir() || state.is(BlockTags.FIRE) || state.is(BlockInit.REDWOOD_PORTAL);
     }
 
     public boolean isValid() {
         return this.width >= 2 && this.width <= 21 && this.height >= 3 && this.height <= 21;
     }
 
-    public void createPortal(WorldAccess world) {
-        BlockState blockState = BlockInit.REDWOOD_PORTAL.getDefaultState().with(RedwoodPortalBlock.AXIS, this.axis);
-        BlockPos.iterate(this.lowerCorner, this.lowerCorner.offset(Direction.UP, this.height - 1).offset(this.negativeDir, this.width - 1)).forEach((pos) -> world.setBlockState(pos, blockState, 18));
+    public void createPortal(LevelAccessor world) {
+        BlockState blockState = BlockInit.REDWOOD_PORTAL.defaultBlockState().setValue(RedwoodPortalBlock.AXIS, this.axis);
+        BlockPos.betweenClosed(this.lowerCorner, this.lowerCorner.relative(Direction.UP, this.height - 1).relative(this.negativeDir, this.width - 1)).forEach((pos) -> world.setBlock(pos, blockState, 18));
     }
 
     public boolean wasAlreadyValid() {
         return this.isValid() && this.foundPortalBlocks == this.width * this.height;
     }
 
-    public static Vec3d entityPosInPortal(BlockLocating.Rectangle portalRect, Direction.Axis portalAxis, Vec3d entityPos, EntityDimensions entityDimensions) {
-        double d = (double)portalRect.width - (double)entityDimensions.width();
-        double e = (double)portalRect.height - (double)entityDimensions.height();
-        BlockPos blockPos = portalRect.lowerLeft;
+    public static Vec3 entityPosInPortal(BlockUtil.FoundRectangle portalRect, Direction.Axis portalAxis, Vec3 entityPos, EntityDimensions entityDimensions) {
+        double d = (double)portalRect.axis1Size - (double)entityDimensions.width();
+        double e = (double)portalRect.axis2Size - (double)entityDimensions.height();
+        BlockPos blockPos = portalRect.minCorner;
         double g;
         if (d > (double)0.0F) {
-            double f = (double)blockPos.getComponentAlongAxis(portalAxis) + (double)entityDimensions.width() / (double)2.0F;
-            g = MathHelper.clamp(MathHelper.getLerpProgress(entityPos.getComponentAlongAxis(portalAxis) - f, (double)0.0F, d), (double)0.0F, (double)1.0F);
+            double f = (double)blockPos.get(portalAxis) + (double)entityDimensions.width() / (double)2.0F;
+            g = Mth.clamp(Mth.inverseLerp(entityPos.get(portalAxis) - f, (double)0.0F, d), (double)0.0F, (double)1.0F);
         } else {
             g = (double)0.5F;
         }
@@ -187,24 +191,24 @@ public class RedwoodPortal {
         double f;
         if (e > (double)0.0F) {
             Direction.Axis axis = Direction.Axis.Y;
-            f = MathHelper.clamp(MathHelper.getLerpProgress(entityPos.getComponentAlongAxis(axis) - (double)blockPos.getComponentAlongAxis(axis), (double)0.0F, e), (double)0.0F, (double)1.0F);
+            f = Mth.clamp(Mth.inverseLerp(entityPos.get(axis) - (double)blockPos.get(axis), (double)0.0F, e), (double)0.0F, (double)1.0F);
         } else {
             f = (double)0.0F;
         }
 
         Direction.Axis axis = portalAxis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
-        double h = entityPos.getComponentAlongAxis(axis) - ((double)blockPos.getComponentAlongAxis(axis) + (double)0.5F);
-        return new Vec3d(g, f, h);
+        double h = entityPos.get(axis) - ((double)blockPos.get(axis) + (double)0.5F);
+        return new Vec3(g, f, h);
     }
 
-    public static Vec3d findOpenPosition(Vec3d fallback, ServerWorld world, Entity entity, EntityDimensions dimensions) {
+    public static Vec3 findOpenPosition(Vec3 fallback, ServerLevel world, Entity entity, EntityDimensions dimensions) {
         if (!(dimensions.width() > 4.0F) && !(dimensions.height() > 4.0F)) {
             double d = (double)dimensions.height() / (double)2.0F;
-            Vec3d vec3d = fallback.add((double)0.0F, d, (double)0.0F);
-            VoxelShape voxelShape = VoxelShapes.cuboid(Box.of(vec3d, (double)dimensions.width(), (double)0.0F, (double)dimensions.width()).stretch((double)0.0F, (double)1.0F, (double)0.0F).expand(1.0E-6));
-            Optional<Vec3d> optional = world.findClosestCollision(entity, voxelShape, vec3d, (double)dimensions.width(), (double)dimensions.height(), (double)dimensions.width());
-            Optional<Vec3d> optional2 = optional.map((pos) -> pos.subtract((double)0.0F, d, (double)0.0F));
-            return (Vec3d)optional2.orElse(fallback);
+            Vec3 vec3d = fallback.add((double)0.0F, d, (double)0.0F);
+            VoxelShape voxelShape = Shapes.create(AABB.ofSize(vec3d, (double)dimensions.width(), (double)0.0F, (double)dimensions.width()).expandTowards((double)0.0F, (double)1.0F, (double)0.0F).inflate(1.0E-6));
+            Optional<Vec3> optional = world.findFreePosition(entity, voxelShape, vec3d, (double)dimensions.width(), (double)dimensions.height(), (double)dimensions.width());
+            Optional<Vec3> optional2 = optional.map((pos) -> pos.subtract((double)0.0F, d, (double)0.0F));
+            return (Vec3)optional2.orElse(fallback);
         } else {
             return fallback;
         }

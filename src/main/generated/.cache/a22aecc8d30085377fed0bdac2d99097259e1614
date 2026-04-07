@@ -1,7 +1,0 @@
-// 1.21.11	-999999999-01-01T00:00:00	Redwood variants/World Gen
-25229e1e56bacabb09afbde297a8815b0e5ce524 data/redwood-variants/dimension_type/redwooddim_type.json
-698bc9fed10670bc8992015a772302e0d6ce15b5 data/redwood-variants/worldgen/biome/redwood_biome.json
-7132f5bb96b8067e3b8ca72807341ffff869e061 data/redwood-variants/worldgen/configured_feature/giant_redwood_tree.json
-7132f5bb96b8067e3b8ca72807341ffff869e061 data/redwood-variants/worldgen/configured_feature/redwood_tree.json
-558c09fa89f6e690984204d5459979c65bc83cad data/redwood-variants/worldgen/placed_feature/giant_redwood_placed.json
-b1c497e7798052ceb96e8c78d47b0049028d8d5b data/redwood-variants/worldgen/placed_feature/redwood_placed.json

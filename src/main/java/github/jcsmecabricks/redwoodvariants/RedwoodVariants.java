@@ -10,13 +10,14 @@ import github.jcsmecabricks.redwoodvariants.init.worldgen.ModWorldGeneration;
 import github.jcsmecabricks.redwoodvariants.util.ModPointOfInterestTypes;
 import github.jcsmecabricks.redwoodvariants.world.ModEntitySpawns;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
-import net.minecraft.block.*;
-import net.minecraft.item.*;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,42 +56,42 @@ public class RedwoodVariants implements ModInitializer {
 		StrippableBlockRegistry.register(BlockInit.REDWOOD_LOG, BlockInit.STRIPPED_REDWOOD_LOG);
 		StrippableBlockRegistry.register(BlockInit.REDWOOD_WOOD, BlockInit.STRIPPED_REDWOOD_WOOD);
 
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.BUILDING_BLOCKS).register(entries -> {
-			entries.addAfter(Items.WARPED_BUTTON, BlockInit.REDWOOD_LOG);
-			entries.addAfter(BlockInit.REDWOOD_LOG, BlockInit.REDWOOD_WOOD);
-			entries.addAfter(BlockInit.REDWOOD_WOOD, BlockInit.REDWOOD_PLANKS);
-			entries.addAfter(BlockInit.REDWOOD_PLANKS, BlockInit.REDWOOD_STAIRS);
-			entries.addAfter(BlockInit.REDWOOD_STAIRS, BlockInit.REDWOOD_SLAB);
-			entries.addAfter(BlockInit.REDWOOD_SLAB, BlockInit.REDWOOD_FENCE);
-			entries.addAfter(BlockInit.REDWOOD_FENCE, BlockInit.REDWOOD_FENCE_GATE);
-			entries.addAfter(BlockInit.REDWOOD_FENCE_GATE, BlockInit.REDWOOD_DOOR);
-			entries.addBefore(BlockInit.REDWOOD_LOG, BlockInit.STRIPPED_REDWOOD_LOG);
-			entries.addAfter(BlockInit.STRIPPED_REDWOOD_LOG, BlockInit.STRIPPED_REDWOOD_WOOD);
-			entries.addAfter(BlockInit.REDWOOD_DOOR, BlockInit.REDWOOD_TRAPDOOR);
-			entries.addAfter(BlockInit.REDWOOD_TRAPDOOR, BlockInit.REDWOOD_PRESSURE_PLATE);
-			entries.addAfter(BlockInit.REDWOOD_PRESSURE_PLATE, BlockInit.REDWOOD_BUTTON);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
+			entries.insertAfter(Items.WARPED_BUTTON, BlockInit.REDWOOD_LOG);
+			entries.insertAfter(BlockInit.REDWOOD_LOG, BlockInit.REDWOOD_WOOD);
+			entries.insertAfter(BlockInit.REDWOOD_WOOD, BlockInit.REDWOOD_PLANKS);
+			entries.insertAfter(BlockInit.REDWOOD_PLANKS, BlockInit.REDWOOD_STAIRS);
+			entries.insertAfter(BlockInit.REDWOOD_STAIRS, BlockInit.REDWOOD_SLAB);
+			entries.insertAfter(BlockInit.REDWOOD_SLAB, BlockInit.REDWOOD_FENCE);
+			entries.insertAfter(BlockInit.REDWOOD_FENCE, BlockInit.REDWOOD_FENCE_GATE);
+			entries.insertAfter(BlockInit.REDWOOD_FENCE_GATE, BlockInit.REDWOOD_DOOR);
+			entries.insertBefore(BlockInit.REDWOOD_LOG, BlockInit.STRIPPED_REDWOOD_LOG);
+			entries.insertAfter(BlockInit.STRIPPED_REDWOOD_LOG, BlockInit.STRIPPED_REDWOOD_WOOD);
+			entries.insertAfter(BlockInit.REDWOOD_DOOR, BlockInit.REDWOOD_TRAPDOOR);
+			entries.insertAfter(BlockInit.REDWOOD_TRAPDOOR, BlockInit.REDWOOD_PRESSURE_PLATE);
+			entries.insertAfter(BlockInit.REDWOOD_PRESSURE_PLATE, BlockInit.REDWOOD_BUTTON);
 
 		});
 
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.NATURAL).register(entries -> {
-			entries.addAfter(Items.DARK_OAK_SAPLING, BlockInit.REDWOOD_SAPLING);
-			entries.addAfter(Blocks.CHERRY_LEAVES, BlockInit.REDWOOD_LEAVES);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(entries -> {
+			entries.insertAfter(Items.DARK_OAK_SAPLING, BlockInit.REDWOOD_SAPLING);
+			entries.insertAfter(Blocks.CHERRY_LEAVES, BlockInit.REDWOOD_LEAVES);
 
 		});
 
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register(entries -> {
-			entries.addAfter(Items.CHERRY_CHEST_BOAT, ItemInit.REDWOOD_CHEST_BOAT);
-			entries.addAfter(ItemInit.REDWOOD_CHEST_BOAT, ItemInit.REDWOOD_BOAT);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> {
+			entries.insertAfter(Items.CHERRY_CHEST_BOAT, ItemInit.REDWOOD_CHEST_BOAT);
+			entries.insertAfter(ItemInit.REDWOOD_CHEST_BOAT, ItemInit.REDWOOD_BOAT);
 
 		});
 
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> {
-			entries.addAfter(Items.WARPED_HANGING_SIGN, ItemInit.REDWOOD_SIGN);
-			entries.addAfter(ItemInit.REDWOOD_SIGN, ItemInit.HANGING_REDWOOD_SIGN);
+		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(entries -> {
+			entries.insertBefore(Items.WARPED_HANGING_SIGN, ItemInit.REDWOOD_SIGN);
+			entries.insertBefore(ItemInit.REDWOOD_SIGN, ItemInit.HANGING_REDWOOD_SIGN);
 
 		});
 	}
 	public static Identifier id(String path) {
-		return Identifier.of(MOD_ID, path);
+		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}
 }

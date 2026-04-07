@@ -1,7 +1,0 @@
-// 1.21.11	-999999999-01-01T00:00:00	Redwood variants/Tags for minecraft:item
-30e373bd5b308a4720fc6cc65aae009329f360ca data/minecraft/tags/item/boats.json
-9b8f41a7ae1c746bfb35f4d76311a014a9e75638 data/minecraft/tags/item/chest_boats.json
-8e8fa4d7434db22367f9b49881525ec02263edef data/minecraft/tags/item/hanging_signs.json
-08e64a15f27f8ed38ecf9532ff1bb215b4b394be data/minecraft/tags/item/logs.json
-08e64a15f27f8ed38ecf9532ff1bb215b4b394be data/minecraft/tags/item/logs_that_burn.json
-a339a3b6f3456fa50adba2609f37bddffcbbea76 data/minecraft/tags/item/signs.json

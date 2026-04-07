@@ -3,41 +3,41 @@ package github.jcsmecabricks.redwoodvariants.data.provider;
 import github.jcsmecabricks.redwoodvariants.init.BlockInit;
 import github.jcsmecabricks.redwoodvariants.init.ItemInit;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.minecraft.client.data.BlockStateModelGenerator;
-import net.minecraft.client.data.ItemModelGenerator;
-import net.minecraft.client.data.Models;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.model.ModelTemplates;
 
 public class RedwoodVariantsModelProvider extends FabricModelProvider {
-    public RedwoodVariantsModelProvider(FabricDataOutput output) {
+    public RedwoodVariantsModelProvider(FabricPackOutput output) {
         super(output);
     }
 
     @Override
-    public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {
-        blockStateModelGenerator.registerTintableCross(BlockInit.REDWOOD_SAPLING, BlockStateModelGenerator.CrossType.NOT_TINTED);
-        blockStateModelGenerator.registerSimpleCubeAll(BlockInit.REDWOOD_LEAVES);
-        BlockStateModelGenerator.BlockTexturePool redwoodPool = blockStateModelGenerator.registerCubeAllModelTexturePool(BlockInit.REDWOOD_PLANKS);
+    public void generateBlockStateModels(BlockModelGenerators blockStateModelGenerator) {
+        blockStateModelGenerator.createCrossBlockWithDefaultItem(BlockInit.REDWOOD_SAPLING, BlockModelGenerators.PlantType.NOT_TINTED);
+        blockStateModelGenerator.createTrivialCube(BlockInit.REDWOOD_LEAVES);
+        BlockModelGenerators.BlockFamilyProvider redwoodPool = blockStateModelGenerator.family(BlockInit.REDWOOD_PLANKS);
         redwoodPool.button(BlockInit.REDWOOD_BUTTON);
         redwoodPool.slab(BlockInit.REDWOOD_SLAB);
         redwoodPool.stairs(BlockInit.REDWOOD_STAIRS);
         redwoodPool.fence(BlockInit.REDWOOD_FENCE);
-        redwoodPool.family(BlockInit.REDWOOD_FAMILY);
-        redwoodPool.family(BlockInit.REDWOOD_HANGING_FAMILY);
+        redwoodPool.generateFor(BlockInit.REDWOOD_FAMILY);
+        redwoodPool.generateFor(BlockInit.REDWOOD_HANGING_FAMILY);
         redwoodPool.fenceGate(BlockInit.REDWOOD_FENCE_GATE);
         redwoodPool.pressurePlate(BlockInit.REDWOOD_PRESSURE_PLATE);
-        blockStateModelGenerator.createLogTexturePool(BlockInit.REDWOOD_LOG).log(BlockInit.REDWOOD_LOG).wood(BlockInit.REDWOOD_WOOD);
-        blockStateModelGenerator.createLogTexturePool(BlockInit.STRIPPED_REDWOOD_LOG).log(BlockInit.STRIPPED_REDWOOD_LOG).wood(BlockInit.STRIPPED_REDWOOD_WOOD);
-        blockStateModelGenerator.registerDoor(BlockInit.REDWOOD_DOOR);
-        blockStateModelGenerator.registerTrapdoor(BlockInit.REDWOOD_TRAPDOOR);
+        blockStateModelGenerator.woodProvider(BlockInit.REDWOOD_LOG).logWithHorizontal(BlockInit.REDWOOD_LOG).wood(BlockInit.REDWOOD_WOOD);
+        blockStateModelGenerator.woodProvider(BlockInit.STRIPPED_REDWOOD_LOG).logWithHorizontal(BlockInit.STRIPPED_REDWOOD_LOG).wood(BlockInit.STRIPPED_REDWOOD_WOOD);
+        blockStateModelGenerator.createDoor(BlockInit.REDWOOD_DOOR);
+        blockStateModelGenerator.createTrapdoor(BlockInit.REDWOOD_TRAPDOOR);
     }
 
     @Override
-    public void generateItemModels(ItemModelGenerator itemModelGenerator) {
-        itemModelGenerator.register(ItemInit.REDWOOD_BOAT, Models.GENERATED);
-        itemModelGenerator.register(ItemInit.GRIZZLY_SPAWN_EGG, Models.GENERATED);
-        itemModelGenerator.register(ItemInit.RESOURCE_REALM, Models.GENERATED);
-        itemModelGenerator.register(ItemInit.REDWOOD_CHEST_BOAT, Models.GENERATED);
+    public void generateItemModels(ItemModelGenerators itemModelGenerator) {
+        itemModelGenerator.generateFlatItem(ItemInit.REDWOOD_BOAT, ModelTemplates.FLAT_ITEM);
+        itemModelGenerator.generateFlatItem(ItemInit.GRIZZLY_SPAWN_EGG, ModelTemplates.FLAT_ITEM);
+        itemModelGenerator.generateFlatItem(ItemInit.RESOURCE_REALM, ModelTemplates.FLAT_ITEM);
+        itemModelGenerator.generateFlatItem(ItemInit.REDWOOD_CHEST_BOAT, ModelTemplates.FLAT_ITEM);
     }
 
 }

@@ -8,8 +8,8 @@ import github.jcsmecabricks.redwoodvariants.world.biomes.ModBiomes;
 import github.jcsmecabricks.redwoodvariants.world.dimension.ModDimensions;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.minecraft.registry.RegistryBuilder;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.registries.Registries;
 
 public class RedwoodVariantsDataGenerator implements DataGeneratorEntrypoint {
 	@Override
@@ -28,12 +28,12 @@ public class RedwoodVariantsDataGenerator implements DataGeneratorEntrypoint {
 	}
 
 	@Override
-	public void buildRegistry(RegistryBuilder registryBuilder) {
+	public void buildRegistry(RegistrySetBuilder registryBuilder) {
 		DataGeneratorEntrypoint.super.buildRegistry(registryBuilder);
-		registryBuilder.addRegistry(RegistryKeys.CONFIGURED_FEATURE, ConfiguredFeatureInit::boostrap);
-		registryBuilder.addRegistry(RegistryKeys.PLACED_FEATURE, PlacedFeatureInit::boostrap);
-		registryBuilder.addRegistry(RegistryKeys.DIMENSION_TYPE, ModDimensions::bootstrapType);
-		registryBuilder.addRegistry(RegistryKeys.BIOME, ModBiomes::boostrap);
+		registryBuilder.add(Registries.CONFIGURED_FEATURE, ConfiguredFeatureInit::boostrap);
+		registryBuilder.add(Registries.PLACED_FEATURE, PlacedFeatureInit::boostrap);
+		registryBuilder.add(Registries.DIMENSION_TYPE, ModDimensions::bootstrapType);
+		registryBuilder.add(Registries.BIOME, ModBiomes::boostrap);
 
 	}
 }

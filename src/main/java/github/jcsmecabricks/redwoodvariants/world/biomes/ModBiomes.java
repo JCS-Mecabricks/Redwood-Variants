@@ -3,105 +3,104 @@ package github.jcsmecabricks.redwoodvariants.world.biomes;
 import github.jcsmecabricks.redwoodvariants.RedwoodVariants;
 import github.jcsmecabricks.redwoodvariants.entity.ModEntities;
 import github.jcsmecabricks.redwoodvariants.init.worldgen.PlacedFeatureInit;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.registry.Registerable;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.sound.BiomeMoodSound;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.worldgen.BiomeDefaultFeatures;
+import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.attribute.BackgroundMusic;
 import net.minecraft.world.attribute.EnvironmentAttributes;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeEffects;
-import net.minecraft.world.biome.GenerationSettings;
-import net.minecraft.world.biome.SpawnSettings;
-import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.feature.DefaultBiomeFeatures;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
+import net.minecraft.world.level.biome.BiomeSpecialEffects;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.levelgen.GenerationStep;
 
-import static net.minecraft.world.biome.OverworldBiomeCreator.getSkyColor;
+import static net.minecraft.data.worldgen.biome.OverworldBiomes.calculateSkyColor;
 
 public class ModBiomes {
     public static boolean redwood;
-    public static final RegistryKey<Biome> REDWOOD_BIOME = RegistryKey.of(RegistryKeys.BIOME,
-            Identifier.of(RedwoodVariants.MOD_ID, "redwood_biome"));
+    public static final ResourceKey<Biome> REDWOOD_BIOME = ResourceKey.create(Registries.BIOME,
+            Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwood_biome"));
 
-    public static void boostrap(Registerable<Biome> context) {
+    public static void boostrap(BootstrapContext<Biome> context) {
         context.register(REDWOOD_BIOME, redwoodBiome(context, redwood));
     }
 
-    private static Biome.Builder biome(float temperature, float downfall) {
-        return new Biome.Builder()
-                .precipitation(true)
+    private static Biome.BiomeBuilder biome(float temperature, float downfall) {
+        return new Biome.BiomeBuilder()
+                .hasPrecipitation(true)
                 .temperature(temperature)
                 .downfall(downfall)
-                .effects(new BiomeEffects.Builder()
+                .specialEffects(new BiomeSpecialEffects.Builder()
                         .waterColor(4159204)
                         .build());
     }
 
-    public static void globalOverworldGeneration(GenerationSettings.LookupBackedBuilder builder) {
-        DefaultBiomeFeatures.addLandCarvers(builder);
-        DefaultBiomeFeatures.addAmethystGeodes(builder);
-        DefaultBiomeFeatures.addDungeons(builder);
-        DefaultBiomeFeatures.addMineables(builder);
-        DefaultBiomeFeatures.addSprings(builder);
-        DefaultBiomeFeatures.addFrozenTopLayer(builder);
+    public static void globalOverworldGeneration(BiomeGenerationSettings.Builder builder) {
+        BiomeDefaultFeatures.addDefaultCarversAndLakes(builder);
+        BiomeDefaultFeatures.addDefaultCrystalFormations(builder);
+        BiomeDefaultFeatures.addDefaultMonsterRoom(builder);
+        BiomeDefaultFeatures.addDefaultUndergroundVariety(builder);
+        BiomeDefaultFeatures.addDefaultSprings(builder);
+        BiomeDefaultFeatures.addSurfaceFreezing(builder);
     }
 
-    public static Biome redwoodBiome(Registerable<Biome> context, boolean redwood) {
-        SpawnSettings.Builder spawnBuilder = new SpawnSettings.Builder();
+    public static Biome redwoodBiome(BootstrapContext<Biome> context, boolean redwood) {
+        MobSpawnSettings.Builder spawnBuilder = new MobSpawnSettings.Builder();
 
-        spawnBuilder.spawn(SpawnGroup.CREATURE, 5,
-                new SpawnSettings.SpawnEntry(EntityType.WOLF, 4, 4));
-        spawnBuilder.spawn(SpawnGroup.CREATURE, 6,
-                new SpawnSettings.SpawnEntry(EntityType.FOX, 3, 5));
+        spawnBuilder.addSpawn(MobCategory.CREATURE, 5,
+                new MobSpawnSettings.SpawnerData(EntityType.WOLF, 4, 4));
+        spawnBuilder.addSpawn(MobCategory.CREATURE, 6,
+                new MobSpawnSettings.SpawnerData(EntityType.FOX, 3, 5));
 
-        DefaultBiomeFeatures.addFarmAnimals(spawnBuilder);
+        BiomeDefaultFeatures.farmAnimals(spawnBuilder);
 
-        GenerationSettings.LookupBackedBuilder genBuilder =
-                new GenerationSettings.LookupBackedBuilder(
-                        context.getRegistryLookup(RegistryKeys.PLACED_FEATURE),
-                        context.getRegistryLookup(RegistryKeys.CONFIGURED_CARVER)
+        BiomeGenerationSettings.Builder genBuilder =
+                new BiomeGenerationSettings.Builder(
+                        context.lookup(Registries.PLACED_FEATURE),
+                        context.lookup(Registries.CONFIGURED_CARVER)
                 );
 
         globalOverworldGeneration(genBuilder);
-        DefaultBiomeFeatures.addDefaultOres(genBuilder);
-        DefaultBiomeFeatures.addMossyRocks(genBuilder);
+        BiomeDefaultFeatures.addDefaultOres(genBuilder);
+        BiomeDefaultFeatures.addMossyStoneBlock(genBuilder);
 
-        genBuilder.feature(
-                GenerationStep.Feature.VEGETAL_DECORATION,
+        genBuilder.addFeature(
+                GenerationStep.Decoration.VEGETAL_DECORATION,
                 PlacedFeatureInit.REDWOOD_PLACED_KEY
         );
 
-        DefaultBiomeFeatures.addLargeFerns(genBuilder);
-        DefaultBiomeFeatures.addForestFlowers(genBuilder);
-        DefaultBiomeFeatures.addDefaultVegetation(genBuilder, true);
+        BiomeDefaultFeatures.addFerns(genBuilder);
+        BiomeDefaultFeatures.addForestFlowers(genBuilder);
+        BiomeDefaultFeatures.addDefaultExtraVegetation(genBuilder, true);
 
         return biome(0.4F, 0.7F)
                 // ✅ VISUAL ENVIRONMENT
-                .setEnvironmentAttribute(
-                        EnvironmentAttributes.SKY_COLOR_VISUAL,
-                        getSkyColor(0.4F)
+                .setAttribute(
+                        EnvironmentAttributes.SKY_COLOR,
+                        calculateSkyColor(0.4F)
                 )
-                .setEnvironmentAttribute(
-                        EnvironmentAttributes.WATER_FOG_COLOR_VISUAL,
+                .setAttribute(
+                        EnvironmentAttributes.WATER_FOG_COLOR,
                         12638463
                 )
-                .setEnvironmentAttribute(
-                        EnvironmentAttributes.BACKGROUND_MUSIC_AUDIO,
+                .setAttribute(
+                        EnvironmentAttributes.BACKGROUND_MUSIC,
                         new BackgroundMusic(SoundEvents.AMBIENT_WARPED_FOREST_MOOD)
                 )
 
                 // ✅ BIOME EFFECTS (COLORS ONLY)
-                .effects(new BiomeEffects.Builder()
+                .specialEffects(new BiomeSpecialEffects.Builder()
                         .waterColor(4159204)
-                        .grassColor(9470285)
-                        .foliageColor(16262185)
+                        .grassColorOverride(9470285)
+                        .foliageColorOverride(16262185)
                         .build())
 
-                .spawnSettings(spawnBuilder.build())
+                .mobSpawnSettings(spawnBuilder.build())
                 .generationSettings(genBuilder.build())
                 .build();
     }

@@ -2,22 +2,19 @@ package github.jcsmecabricks.redwoodvariants.data.provider;
 
 import github.jcsmecabricks.redwoodvariants.init.BlockInit;
 import github.jcsmecabricks.redwoodvariants.init.ItemInit;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
-import net.minecraft.item.Item;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.ItemTags;
-
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.ItemTags;
 import java.util.concurrent.CompletableFuture;
 
-public class RedwoodVariantsItemTagProvider extends FabricTagProvider.ItemTagProvider {
-    public RedwoodVariantsItemTagProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+public class RedwoodVariantsItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
+    public RedwoodVariantsItemTagProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 
     @Override
-    protected void configure(RegistryWrapper.WrapperLookup wrapperLookup) {
+    protected void addTags(HolderLookup.Provider wrapperLookup) {
 
         valueLookupBuilder(ItemTags.SIGNS)
                 .add(ItemInit.REDWOOD_SIGN);
