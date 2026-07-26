@@ -8,10 +8,23 @@ import terrablender.api.SurfaceRuleManager;
 import terrablender.api.TerraBlenderApi;
 
 public class ModTerrablenderAPI implements TerraBlenderApi {
+
     @Override
     public void onTerraBlenderInitialized() {
-        Regions.register(new ModOverworldRegion(Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "overworld"), 1));
+        Regions.register(
+                new ModOverworldRegion(
+                        Identifier.fromNamespaceAndPath(
+                                RedwoodVariants.MOD_ID,
+                                "overworld"
+                        ),
+                        1
+                )
+        );
 
-        SurfaceRuleManager.addSurfaceRules(SurfaceRuleManager.RuleCategory.OVERWORLD, RedwoodVariants.MOD_ID, ModMaterialRules.makeRules());
+        SurfaceRuleManager.addSurfaceRules(
+                SurfaceRuleManager.RuleCategory.OVERWORLD,
+                RedwoodVariants.MOD_ID,
+                ModMaterialRules::makeRules
+        );
     }
 }

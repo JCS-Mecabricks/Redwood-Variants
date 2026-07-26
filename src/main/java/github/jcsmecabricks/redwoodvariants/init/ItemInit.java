@@ -1,8 +1,6 @@
 package github.jcsmecabricks.redwoodvariants.init;
 
-import com.terraformersmc.terraform.boat.api.item.TerraformBoatItemHelper;
 import github.jcsmecabricks.redwoodvariants.RedwoodVariants;
-import github.jcsmecabricks.redwoodvariants.entity.ModBoats;
 import github.jcsmecabricks.redwoodvariants.entity.ModEntities;
 import github.jcsmecabricks.redwoodvariants.item.ResourceRealmItem;
 import java.util.function.Function;
@@ -13,22 +11,20 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.HangingSignItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.SignItem;
-import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.TypedEntityData;
+import net.minecraft.world.level.block.Block;
 
 public class ItemInit {
     public static final Item REDWOOD_SIGN = registerItem("redwood_sign",
-            new SignItem(BlockInit.STANDING_REDWOOD_SIGN, BlockInit.WALL_REDWOOD_SIGN, new Item.Properties().stacksTo(16)
+            properties -> new SignItem(BlockInit.REDWOOD_SIGN, BlockInit.REDWOOD_WALL_SIGN,  properties.stacksTo(16)
                     .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwood_sign")))));
     public static final Item HANGING_REDWOOD_SIGN = registerItem("hanging_redwood_sign",
-            new HangingSignItem(BlockInit.HANGING_REDWOOD_SIGN, BlockInit.WALL_HANGING_REDWOOD_SIGN, new Item.Properties().stacksTo(16)
+            properties -> new HangingSignItem(BlockInit.REDWOOD_HANGING_SIGN, BlockInit.REDWOOD_WALL_HANGING_SIGN,  properties.stacksTo(16)
                     .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "hanging_redwood_sign")))));
 
     public static final Item RESOURCE_REALM = registerItem("resource_realm",
-            new ResourceRealmItem(new Item.Properties()
+            properties -> new ResourceRealmItem( properties
                     .stacksTo(1)
                     .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "resource_realm")))));
 
@@ -39,8 +35,9 @@ public class ItemInit {
             ))
     );
 
-    private static Item registerItem(String name, Item item) {
-        return Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, name), item);
+    private static Item registerItem(String name, Function<Item.Properties, Item> function) {
+        return Registry.register(BuiltInRegistries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, name),
+                function.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, name)))));
     }
 
     private static Item registerSpawnEggItem(String name, Function<Item.Properties, Item> function) {
@@ -48,11 +45,25 @@ public class ItemInit {
                 function.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, name)))));
     }
 
-    public static final Item REDWOOD_BOAT = TerraformBoatItemHelper.registerBoatItem(
-            ModBoats.REDWOOD_BOATS_ID, false);
+    public static final Item REDWOOD_BOAT = registerItem(
+            "redwood_boat",
+            properties -> new BoatItem(
+                    ModEntities.REDWOOD_BOAT,
+                    properties.stacksTo(1)
+            )
+    );
 
-    public static final Item REDWOOD_CHEST_BOAT = TerraformBoatItemHelper.registerBoatItem(
-            ModBoats.REDWOOD_BOATS_ID, true);
+    public static final Item REDWOOD_CHEST_BOAT = registerItem(
+            "redwood_chest_boat",
+            properties -> new BoatItem(
+                    ModEntities.REDWOOD_CHEST_BOAT,
+                     properties.stacksTo(1)
+            )
+    );
+
+    public static ResourceKey<Item> getRK(Item item) {
+        return BuiltInRegistries.ITEM.getResourceKey(item).get();
+    }
 
     public static void load() {}
 }

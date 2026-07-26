@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_attached_hanging_sign_rot_1",
+  "textures": {
+    "all": "redwood-variants:block/redwood_hanging_sign",
+    "particle": "redwood-variants:block/redwood_planks"
+  }
+}

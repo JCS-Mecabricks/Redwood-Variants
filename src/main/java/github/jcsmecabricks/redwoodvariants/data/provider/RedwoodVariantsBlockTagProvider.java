@@ -15,44 +15,47 @@ public class RedwoodVariantsBlockTagProvider extends FabricTagsProvider.BlockTag
 
     @Override
     protected void addTags(HolderLookup.Provider wrapperLookup) {
+        tag(BlockTags.MINEABLE_WITH_AXE)
+                .add(BlockInit.getRK(BlockInit.REDWOOD_STAIRS))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_PRESSURE_PLATE))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_BUTTON))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_DOOR))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_WOOD))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_LOG))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_FENCE))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_FENCE_GATE))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_SLAB))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_PLANKS))
+                .add(BlockInit.getRK(BlockInit.STRIPPED_REDWOOD_LOG))
+                .add(BlockInit.getRK(BlockInit.STRIPPED_REDWOOD_WOOD))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_TRAPDOOR));
 
-        valueLookupBuilder(BlockTags.MINEABLE_WITH_AXE)
-                .add(BlockInit.REDWOOD_STAIRS)
-                .add(BlockInit.REDWOOD_PRESSURE_PLATE)
-                .add(BlockInit.REDWOOD_BUTTON)
-                .add(BlockInit.REDWOOD_DOOR)
-                .add(BlockInit.REDWOOD_WOOD)
-                .add(BlockInit.REDWOOD_LOG)
-                .add(BlockInit.REDWOOD_FENCE)
-                .add(BlockInit.REDWOOD_FENCE_GATE)
-                .add(BlockInit.REDWOOD_SLAB)
-                .add(BlockInit.REDWOOD_PLANKS)
-                .add(BlockInit.STRIPPED_REDWOOD_LOG)
-                .add(BlockInit.STRIPPED_REDWOOD_WOOD)
-                .add(BlockInit.REDWOOD_TRAPDOOR);
+        tag(TagList.Blocks.REDWOOD_VARIANTS_TAG)
+                .add(BlockInit.getRK(BlockInit.REDWOOD_STAIRS))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_PRESSURE_PLATE))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_BUTTON))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_DOOR))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_FENCE))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_FENCE_GATE))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_SLAB))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_PLANKS))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_TRAPDOOR));
 
-        valueLookupBuilder(TagList.Blocks.REDWOOD_VARIANTS_TAG)
-                .add(BlockInit.REDWOOD_STAIRS)
-                .add(BlockInit.REDWOOD_PRESSURE_PLATE)
-                .add(BlockInit.REDWOOD_BUTTON)
-                .add(BlockInit.REDWOOD_DOOR)
-                .add(BlockInit.REDWOOD_FENCE)
-                .add(BlockInit.REDWOOD_FENCE_GATE)
-                .add(BlockInit.REDWOOD_SLAB)
-                .add(BlockInit.REDWOOD_PLANKS)
-                .add(BlockInit.REDWOOD_TRAPDOOR);
+        tag(BlockTags.FENCES).add(BlockInit.getRK(BlockInit.REDWOOD_FENCE));
 
-        valueLookupBuilder(BlockTags.FENCES).add(BlockInit.REDWOOD_FENCE);
+        tag(BlockTags.OVERWORLD_NATURAL_LOGS)
+                .add(BlockInit.getRK(BlockInit.REDWOOD_LOG))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_WOOD))
+                .add(BlockInit.getRK(BlockInit.STRIPPED_REDWOOD_LOG))
+                .add(BlockInit.getRK(BlockInit.STRIPPED_REDWOOD_WOOD));
 
-        valueLookupBuilder(BlockTags.LOGS_THAT_BURN)
-                .add(BlockInit.REDWOOD_LOG, BlockInit.REDWOOD_WOOD,
-                        BlockInit.STRIPPED_REDWOOD_LOG, BlockInit.STRIPPED_REDWOOD_WOOD);
+        tag(BlockTags.LOGS)
+                .add(BlockInit.getRK(BlockInit.REDWOOD_LOG))
+                .add(BlockInit.getRK(BlockInit.REDWOOD_WOOD))
+                .add(BlockInit.getRK(BlockInit.STRIPPED_REDWOOD_LOG))
+                .add(BlockInit.getRK(BlockInit.STRIPPED_REDWOOD_WOOD));
 
-        valueLookupBuilder(BlockTags.LOGS)
-                .add(BlockInit.REDWOOD_LOG, BlockInit.REDWOOD_WOOD,
-                        BlockInit.STRIPPED_REDWOOD_LOG, BlockInit.STRIPPED_REDWOOD_WOOD);
-
-        valueLookupBuilder(BlockTags.FENCE_GATES).add(BlockInit.REDWOOD_FENCE_GATE);
+        tag(BlockTags.FENCE_GATES).add(BlockInit.getRK(BlockInit.REDWOOD_FENCE_GATE));
 
     }
 }

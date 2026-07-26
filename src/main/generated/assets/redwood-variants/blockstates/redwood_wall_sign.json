@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
-      "model": "redwood-variants:block/redwood_sign"
+    "facing=east": {
+      "model": "redwood-variants:block/redwood_wall_sign",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "redwood-variants:block/redwood_wall_sign",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "redwood-variants:block/redwood_wall_sign"
+    },
+    "facing=west": {
+      "model": "redwood-variants:block/redwood_wall_sign",
+      "y": 90
     }
   }
 }

@@ -12,6 +12,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.attribute.BackgroundMusic;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
@@ -43,7 +44,6 @@ public class ModBiomes {
     public static void globalOverworldGeneration(BiomeGenerationSettings.Builder builder) {
         BiomeDefaultFeatures.addDefaultCarversAndLakes(builder);
         BiomeDefaultFeatures.addDefaultCrystalFormations(builder);
-        BiomeDefaultFeatures.addDefaultMonsterRoom(builder);
         BiomeDefaultFeatures.addDefaultUndergroundVariety(builder);
         BiomeDefaultFeatures.addDefaultSprings(builder);
         BiomeDefaultFeatures.addSurfaceFreezing(builder);
@@ -53,9 +53,9 @@ public class ModBiomes {
         MobSpawnSettings.Builder spawnBuilder = new MobSpawnSettings.Builder();
 
         spawnBuilder.addSpawn(MobCategory.CREATURE, 5,
-                new MobSpawnSettings.SpawnerData(EntityType.WOLF, 4, 4));
+                new MobSpawnSettings.SpawnerData(EntityTypes.WOLF, 4, 4));
         spawnBuilder.addSpawn(MobCategory.CREATURE, 6,
-                new MobSpawnSettings.SpawnerData(EntityType.FOX, 3, 5));
+                new MobSpawnSettings.SpawnerData(EntityTypes.FOX, 3, 5));
 
         BiomeDefaultFeatures.farmAnimals(spawnBuilder);
 

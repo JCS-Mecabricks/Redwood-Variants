@@ -22,10 +22,9 @@ public class RedwoodVariantsModelProvider extends FabricModelProvider {
         redwoodPool.slab(BlockInit.REDWOOD_SLAB);
         redwoodPool.stairs(BlockInit.REDWOOD_STAIRS);
         redwoodPool.fence(BlockInit.REDWOOD_FENCE);
-        redwoodPool.generateFor(BlockInit.REDWOOD_FAMILY);
-        redwoodPool.generateFor(BlockInit.REDWOOD_HANGING_FAMILY);
         redwoodPool.fenceGate(BlockInit.REDWOOD_FENCE_GATE);
         redwoodPool.pressurePlate(BlockInit.REDWOOD_PRESSURE_PLATE);
+        redwoodPool.generateFor(BlockInit.REDWOOD_FAMILY);
         blockStateModelGenerator.woodProvider(BlockInit.REDWOOD_LOG).logWithHorizontal(BlockInit.REDWOOD_LOG).wood(BlockInit.REDWOOD_WOOD);
         blockStateModelGenerator.woodProvider(BlockInit.STRIPPED_REDWOOD_LOG).logWithHorizontal(BlockInit.STRIPPED_REDWOOD_LOG).wood(BlockInit.STRIPPED_REDWOOD_WOOD);
         blockStateModelGenerator.createDoor(BlockInit.REDWOOD_DOOR);

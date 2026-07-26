@@ -1,0 +1,7 @@
+// 26.2	-999999999-01-01T00:00:00	Redwood variants/Tags for minecraft:block
+667defb983bbff88ff5198439d746ee40ed81bd6 data/minecraft/tags/block/fence_gates.json
+acf789d73d63b071b70fa76e5f8abf36c1143cac data/minecraft/tags/block/fences.json
+be278cce33aec9901e99dba0bc9e6806e8cfa759 data/minecraft/tags/block/logs.json
+1f988f68ef992b1247960ab86b3f93c558869bfc data/minecraft/tags/block/mineable/axe.json
+be278cce33aec9901e99dba0bc9e6806e8cfa759 data/minecraft/tags/block/overworld_natural_logs.json
+f3a79dc9052515c1d86a685521fe5e39eb8ed194 data/redwood-variants/tags/block/redwood_tag.json

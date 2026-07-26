@@ -24,10 +24,10 @@ public class RedwoodVariantsBlockLootTableProvider extends FabricBlockLootSubPro
                 dropSelf(BlockInit.REDWOOD_PLANKS);
                 dropSelf(BlockInit.REDWOOD_LOG);
                 dropSelf(BlockInit.REDWOOD_WOOD);
-                dropSelf(BlockInit.STANDING_REDWOOD_SIGN);
-                dropSelf(BlockInit.HANGING_REDWOOD_SIGN);
-                dropSelf(BlockInit.WALL_REDWOOD_SIGN);
-                dropSelf(BlockInit.WALL_HANGING_REDWOOD_SIGN);
+                dropSelf(BlockInit.REDWOOD_SIGN);
+                dropSelf(BlockInit.REDWOOD_HANGING_SIGN);
+                dropSelf(BlockInit.REDWOOD_WALL_HANGING_SIGN);
+                dropSelf(BlockInit.REDWOOD_WALL_SIGN);
                 dropSelf(BlockInit.STRIPPED_REDWOOD_WOOD);
                 dropSelf(BlockInit.STRIPPED_REDWOOD_LOG);
                 add(BlockInit.REDWOOD_SLAB, createSlabItemTable(BlockInit.REDWOOD_SLAB));

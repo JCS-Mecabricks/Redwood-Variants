@@ -12,7 +12,7 @@ public class ItemGroupInit {
     public static final Component REDWOOD_TITLE = Component.translatable("itemGroup." + RedwoodVariants.MOD_ID + ".redwood_group");
     public static final CreativeModeTab REDWOOD_GROUP = register("redwood_group", FabricCreativeModeTab.builder()
             .title(REDWOOD_TITLE)
-            .icon(Items.SPRUCE_LOG::getDefaultInstance)
+            .icon(BlockInit.REDWOOD_LOG.asItem()::getDefaultInstance)
             .displayItems((displayContext, entries) -> {
                 entries.accept(ItemInit.REDWOOD_SIGN);
                 entries.accept(ItemInit.GRIZZLY_SPAWN_EGG);

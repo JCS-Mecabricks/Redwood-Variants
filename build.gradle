@@ -20,6 +20,11 @@ repositories {
 
     maven {
         name = 'TerraformersMC'
+        url = 'https://maven.terraformersmc.com/service/rest/repository/browse/maven-public/'
+    }
+
+    maven {
+        name = 'TerraformersMC'
         url = 'https://maven.terraformersmc.com/'
     }
 
@@ -42,11 +47,9 @@ fabricApi {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation "com.terraformersmc.terraform-api:terraform-wood-api-v1:17.0.0-alpha.5"
-    include "com.terraformersmc.terraform-api:terraform-wood-api-v1:17.0.0-alpha.5"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-    implementation 'com.github.glitchfiend:TerraBlender-fabric:26.1-26.1.0.2'
+    implementation 'com.github.glitchfiend:TerraBlender-fabric:26.2-26.2.0.0.2'
 
 }
 

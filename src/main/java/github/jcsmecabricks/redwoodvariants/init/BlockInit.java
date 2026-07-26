@@ -1,9 +1,7 @@
 package github.jcsmecabricks.redwoodvariants.init;
 
-import com.terraformersmc.terraform.sign.api.block.TerraformSignBlockHelper;
 import github.jcsmecabricks.redwoodvariants.RedwoodVariants;
 import github.jcsmecabricks.redwoodvariants.block.RedwoodPortalBlock;
-import github.jcsmecabricks.redwoodvariants.entity.ModSigns;
 import github.jcsmecabricks.redwoodvariants.init.worldgen.tree.ModSaplingGenerators;
 import github.jcsmecabricks.redwoodvariants.registry.ModWoodType;
 import net.minecraft.core.Registry;
@@ -37,6 +35,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.block.state.properties.WoodType;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import java.util.function.Function;
 
@@ -115,7 +114,7 @@ public class BlockInit {
                     .setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwood_trapdoor")))));
 
     public static final Block REDWOOD_LOG = registerBlock("redwood_log",
-            settings -> new RotatedPillarBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG)
+            settings -> new RotatedPillarBlock(settings.ofFullCopy(Blocks.OAK_LOG)
                     .sound(SoundType.WOOD)
                     .ignitedByLava()
                     .instrument(NoteBlockInstrument.BASS)
@@ -123,7 +122,7 @@ public class BlockInit {
                     .setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwood_log")))));
 
     public static final Block STRIPPED_REDWOOD_LOG = registerBlock("stripped_redwood_log",
-            settings -> new RotatedPillarBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG)
+            settings -> new RotatedPillarBlock(settings.ofFullCopy(Blocks.OAK_LOG)
                     .sound(SoundType.WOOD)
                     .ignitedByLava()
                     .instrument(NoteBlockInstrument.BASS)
@@ -171,30 +170,36 @@ public class BlockInit {
             settings -> new SaplingBlock(ModSaplingGenerators.REDWOOD, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING)
                     .setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwood_sapling")))));
 
-    public static final Block STANDING_REDWOOD_SIGN = TerraformSignBlockHelper.registerSignBlock(
-            ModSigns.REDWOOD_SIGN_ID, settings ->
-                    new StandingSignBlock(ModWoodType.REDWOOD, settings), BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SIGN));
+    public static final Block REDWOOD_SIGN = register("redwood_sign", (p) -> new StandingSignBlock(ModWoodType.REDWOOD, p),
+            BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_RED)
+                    .forceSolidOn()
+                    .instrument(NoteBlockInstrument.BASS)
+                    .noCollision()
+                    .strength(1.0F)
+                    .ignitedByLava());
 
-    public static final Block WALL_REDWOOD_SIGN = TerraformSignBlockHelper.registerSignBlock(
-            ModSigns.REDWOOD_WALL_SIGN_ID, settings ->
-                    new WallSignBlock(ModWoodType.REDWOOD, settings), BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SIGN));
+    public static final Block REDWOOD_HANGING_SIGN = register("redwood_hanging_sign", (p) -> new CeilingHangingSignBlock(ModWoodType.REDWOOD, p),
+            BlockBehaviour.Properties.of().mapColor(REDWOOD_LOG.defaultMapColor()).forceSolidOn()
+                    .instrument(NoteBlockInstrument.BASS)
+                    .noCollision().strength(1.0F).ignitedByLava());
 
-    public static final Block HANGING_REDWOOD_SIGN = TerraformSignBlockHelper.registerSignBlock(
-            ModSigns.REDWOOD_HANGING_SIGN_ID, settings ->
-                    new CeilingHangingSignBlock(ModWoodType.REDWOOD, settings), BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SIGN));
+    public static final Block REDWOOD_WALL_SIGN = register("redwood_wall_sign", (p) -> new WallSignBlock(ModWoodType.REDWOOD, p),
+            wallVariant(REDWOOD_SIGN, true).mapColor(MapColor.WOOD).
+                    forceSolidOn().instrument(NoteBlockInstrument.BASS)
+                    .noCollision().strength(1.0F).ignitedByLava());
 
-    public static final Block WALL_HANGING_REDWOOD_SIGN = TerraformSignBlockHelper.registerSignBlock(
-            ModSigns.REDWOOD_WALL_HANGING_SIGN_ID, settings ->
-                    new WallHangingSignBlock(ModWoodType.REDWOOD, settings), BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SIGN));
+    public static final Block REDWOOD_WALL_HANGING_SIGN = register("redwood_wall_hanging_sign", (p) -> new WallHangingSignBlock(ModWoodType.REDWOOD, p),
+            wallVariant(REDWOOD_HANGING_SIGN, true).mapColor(REDWOOD_LOG.defaultMapColor())
+                    .forceSolidOn().instrument(NoteBlockInstrument.BASS).noCollision()
+                    .strength(1.0F).ignitedByLava());
 
     public static final BlockFamily REDWOOD_FAMILY = BlockFamilies.familyBuilder(REDWOOD_PLANKS)
-            .sign(STANDING_REDWOOD_SIGN, WALL_REDWOOD_SIGN)
-            .recipeGroupPrefix("wooden")
-            .recipeUnlockedBy("has_planks")
-            .getFamily();
-
-    public static final BlockFamily REDWOOD_HANGING_FAMILY = BlockFamilies.familyBuilder(REDWOOD_LOG)
-            .sign(HANGING_REDWOOD_SIGN, WALL_HANGING_REDWOOD_SIGN)
+            .sign(REDWOOD_SIGN, REDWOOD_WALL_SIGN)
+            .hangingSign(
+                    REDWOOD_HANGING_SIGN,
+                    REDWOOD_WALL_HANGING_SIGN
+            )
             .recipeGroupPrefix("wooden")
             .recipeUnlockedBy("has_planks")
             .getFamily();
@@ -203,6 +208,40 @@ public class BlockInit {
         Block toRegister = function.apply(BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, name))));
         registerBlockItem(name, toRegister);
         return Registry.register(BuiltInRegistries.BLOCK, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, name), toRegister);
+    }
+
+    public static Block register(final ResourceKey<Block> id, final Function<BlockBehaviour.Properties, Block> factory, final BlockBehaviour.Properties properties) {
+        Block block = (Block)factory.apply(properties.setId(id));
+        return (Block)Registry.register(BuiltInRegistries.BLOCK, id, block);
+    }
+
+    public static Block register(final ResourceKey<Block> id, final BlockBehaviour.Properties properties) {
+        return register(id, Block::new, properties);
+    }
+
+    private static BlockBehaviour.Properties wallVariant(final Block standingBlock, final boolean copyName) {
+        BlockBehaviour.Properties wallProperties = BlockBehaviour.Properties.of().overrideLootTable(standingBlock.getLootTable());
+        if (copyName) {
+            wallProperties = wallProperties.overrideDescription(standingBlock.getDescriptionId());
+        }
+
+        return wallProperties;
+    }
+
+    public static ResourceKey<Block> getRK(Block block) {
+        return BuiltInRegistries.BLOCK.getResourceKey(block).get();
+    }
+
+
+    private static ResourceKey<Block> BlockId(final String name) {
+        return ResourceKey.create(
+                Registries.BLOCK,
+                Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, name)
+        );
+    }
+
+    private static Block register(final String id, final Function<BlockBehaviour.Properties, Block> factory, final BlockBehaviour.Properties properties) {
+        return register(BlockId(id), factory, properties);
     }
 
     private static void registerBlockItem(String name, Block block) {

@@ -3,7 +3,8 @@
 	"package": "github.jcsmecabricks.redwoodvariants.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ExampleMixin"
+		"ExampleMixin",
+		"WoodTypeAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

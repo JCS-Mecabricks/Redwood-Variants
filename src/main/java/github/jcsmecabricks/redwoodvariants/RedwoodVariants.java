@@ -1,12 +1,14 @@
 package github.jcsmecabricks.redwoodvariants;
 
-import github.jcsmecabricks.redwoodvariants.entity.ModBoats;
+import github.jcsmecabricks.redwoodvariants.entity.ModModelLayerLocations;
 import github.jcsmecabricks.redwoodvariants.entity.ModEntities;
 import github.jcsmecabricks.redwoodvariants.entity.custom.GrizzlyBearEntity;
 import github.jcsmecabricks.redwoodvariants.init.BlockInit;
 import github.jcsmecabricks.redwoodvariants.init.ItemGroupInit;
 import github.jcsmecabricks.redwoodvariants.init.ItemInit;
 import github.jcsmecabricks.redwoodvariants.init.worldgen.ModWorldGeneration;
+import github.jcsmecabricks.redwoodvariants.registry.ModWoodType;
+import github.jcsmecabricks.redwoodvariants.util.ModBlockSetType;
 import github.jcsmecabricks.redwoodvariants.util.ModPointOfInterestTypes;
 import github.jcsmecabricks.redwoodvariants.world.ModEntitySpawns;
 import net.fabricmc.api.ModInitializer;
@@ -18,6 +20,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +32,16 @@ public class RedwoodVariants implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Loading...");
 		BlockInit.load();
+		ModWoodType.registerWoodTypes();
+		ModBlockSetType.registerBlockSetTypes();
+		BlockEntityTypes.SIGN.addValidBlock(BlockInit.REDWOOD_SIGN);
+		BlockEntityTypes.SIGN.addValidBlock(BlockInit.REDWOOD_WALL_SIGN);
+		BlockEntityTypes.HANGING_SIGN.addValidBlock(BlockInit.REDWOOD_HANGING_SIGN);
+		BlockEntityTypes.HANGING_SIGN.addValidBlock(BlockInit.REDWOOD_WALL_HANGING_SIGN);
 		ModEntitySpawns.addSpawns();
 		ModEntities.registerEntities();
 		ItemGroupInit.load();
 		ItemInit.load();
-		ModBoats.load();
 		ModPointOfInterestTypes.register();
 		ModWorldGeneration.generateWorldGen();
 

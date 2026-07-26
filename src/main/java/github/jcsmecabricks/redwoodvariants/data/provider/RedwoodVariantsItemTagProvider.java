@@ -16,29 +16,29 @@ public class RedwoodVariantsItemTagProvider extends FabricTagsProvider.ItemTagsP
     @Override
     protected void addTags(HolderLookup.Provider wrapperLookup) {
 
-        valueLookupBuilder(ItemTags.SIGNS)
-                .add(ItemInit.REDWOOD_SIGN);
+        tag(ItemTags.SIGNS)
+                .add(ItemInit.getRK(ItemInit.REDWOOD_SIGN));
 
-        valueLookupBuilder(ItemTags.HANGING_SIGNS)
-                .add(ItemInit.HANGING_REDWOOD_SIGN);
+        tag(ItemTags.HANGING_SIGNS)
+                .add(ItemInit.getRK(ItemInit.HANGING_REDWOOD_SIGN));
 
-        valueLookupBuilder(ItemTags.BOATS)
-                .add(ItemInit.REDWOOD_BOAT);
+        tag(ItemTags.BOATS)
+                .add(ItemInit.getRK(ItemInit.REDWOOD_BOAT));
 
-        valueLookupBuilder(ItemTags.LOGS_THAT_BURN)
-                .add(BlockInit.REDWOOD_WOOD.asItem())
-                .add(BlockInit.STRIPPED_REDWOOD_WOOD.asItem())
-                .add(BlockInit.STRIPPED_REDWOOD_LOG.asItem())
-                .add(BlockInit.REDWOOD_LOG.asItem());
+        tag(ItemTags.LOGS_THAT_BURN)
+                .add(ItemInit.getRK(BlockInit.REDWOOD_WOOD.asItem()))
+                .add(ItemInit.getRK(BlockInit.STRIPPED_REDWOOD_WOOD.asItem()))
+                .add(ItemInit.getRK(BlockInit.STRIPPED_REDWOOD_LOG.asItem()))
+                .add(ItemInit.getRK(BlockInit.REDWOOD_LOG.asItem()));
 
-        valueLookupBuilder(ItemTags.LOGS)
-                .add(BlockInit.REDWOOD_WOOD.asItem())
-                .add(BlockInit.STRIPPED_REDWOOD_WOOD.asItem())
-                .add(BlockInit.STRIPPED_REDWOOD_LOG.asItem())
-                .add(BlockInit.REDWOOD_LOG.asItem());
+        tag(ItemTags.LOGS)
+                .add(ItemInit.getRK(BlockInit.REDWOOD_WOOD.asItem()))
+                .add(ItemInit.getRK(BlockInit.STRIPPED_REDWOOD_WOOD.asItem()))
+                .add(ItemInit.getRK(BlockInit.STRIPPED_REDWOOD_LOG.asItem()))
+                .add(ItemInit.getRK(BlockInit.REDWOOD_LOG.asItem()));
 
-        valueLookupBuilder(ItemTags.CHEST_BOATS)
-                .add(ItemInit.REDWOOD_CHEST_BOAT);
+        tag(ItemTags.CHEST_BOATS)
+                .add(ItemInit.getRK(ItemInit.REDWOOD_CHEST_BOAT));
 
     }
 }
