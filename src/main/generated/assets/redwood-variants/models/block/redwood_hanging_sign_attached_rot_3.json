@@ -2,6 +2,6 @@
   "parent": "minecraft:block/template_attached_hanging_sign_rot_3",
   "textures": {
     "all": "redwood-variants:block/redwood_hanging_sign",
-    "particle": "redwood-variants:block/redwood_planks"
+    "particle": "redwood-variants:block/stripped_redwood_log"
   }
 }

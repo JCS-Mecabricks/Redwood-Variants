@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "redwood-variants:item/hanging_redwood_sign"
+    "layer0": "redwood-variants:item/redwood_hanging_sign"
   }
 }

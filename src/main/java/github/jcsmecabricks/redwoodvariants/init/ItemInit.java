@@ -4,6 +4,8 @@ import github.jcsmecabricks.redwoodvariants.RedwoodVariants;
 import github.jcsmecabricks.redwoodvariants.entity.ModEntities;
 import github.jcsmecabricks.redwoodvariants.item.ResourceRealmItem;
 import java.util.function.Function;
+
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,15 +15,14 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.TypedEntityData;
-import net.minecraft.world.level.block.Block;
 
 public class ItemInit {
     public static final Item REDWOOD_SIGN = registerItem("redwood_sign",
-            properties -> new SignItem(BlockInit.REDWOOD_SIGN, BlockInit.REDWOOD_WALL_SIGN,  properties.stacksTo(16)
+            properties -> new StandingAndWallBlockItem(BlockInit.REDWOOD_SIGN, BlockInit.REDWOOD_WALL_SIGN,  Direction.DOWN, properties.stacksTo(16)
                     .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwood_sign")))));
-    public static final Item HANGING_REDWOOD_SIGN = registerItem("hanging_redwood_sign",
+    public static final Item REDWOOD_HANGING_SIGN = registerItem("redwood_hanging_sign",
             properties -> new HangingSignItem(BlockInit.REDWOOD_HANGING_SIGN, BlockInit.REDWOOD_WALL_HANGING_SIGN,  properties.stacksTo(16)
-                    .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "hanging_redwood_sign")))));
+                    .setId(ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwood_hanging_sign")))));
 
     public static final Item RESOURCE_REALM = registerItem("resource_realm",
             properties -> new ResourceRealmItem( properties

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "redwood-variants:redwood_planks"
+        "recipes": "redwood-variants:redwood_planks"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

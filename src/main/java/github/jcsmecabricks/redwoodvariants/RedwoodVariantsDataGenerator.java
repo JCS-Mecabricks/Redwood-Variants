@@ -30,7 +30,7 @@ public class RedwoodVariantsDataGenerator implements DataGeneratorEntrypoint {
 	@Override
 	public void buildRegistry(RegistrySetBuilder registryBuilder) {
 		DataGeneratorEntrypoint.super.buildRegistry(registryBuilder);
-		registryBuilder.add(Registries.CONFIGURED_FEATURE, ConfiguredFeatureInit::boostrap);
+		registryBuilder.add(Registries.FEATURE, ConfiguredFeatureInit::boostrap);
 		registryBuilder.add(Registries.PLACED_FEATURE, PlacedFeatureInit::boostrap);
 		registryBuilder.add(Registries.DIMENSION_TYPE, ModDimensions::bootstrapType);
 		registryBuilder.add(Registries.BIOME, ModBiomes::boostrap);

@@ -4,13 +4,16 @@ import github.jcsmecabricks.redwoodvariants.init.BlockInit;
 import github.jcsmecabricks.redwoodvariants.init.ItemInit;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Blocks;
 import java.util.concurrent.CompletableFuture;
 
@@ -20,8 +23,8 @@ public class RedwoodVariantsRecipeProvider extends FabricRecipeProvider {
     }
 
     @Override
-    protected RecipeProvider createRecipeProvider(HolderLookup.Provider wrapperLookup, RecipeOutput recipeExporter) {
-        return new RecipeProvider(wrapperLookup, recipeExporter) {
+    protected RecipeProvider createRecipeProvider(HolderLookup.Provider wrapperLookup, BootstrapContext<Recipe<?>> recipes, BootstrapContext<Advancement> advancments) {
+        return new RecipeProvider(recipes, advancments) {
             @Override
             public void buildRecipes() {
                 shaped(RecipeCategory.MISC, Items.STICK, 4)
@@ -161,7 +164,7 @@ public class RedwoodVariantsRecipeProvider extends FabricRecipeProvider {
                         .unlockedBy(getHasName(BlockInit.REDWOOD_PLANKS), has(BlockInit.REDWOOD_PLANKS))
                         .unlockedBy(getHasName(Items.STICK), has(Items.STICK))
                         .save(output);
-                shaped(RecipeCategory.MISC, ItemInit.HANGING_REDWOOD_SIGN, 6)
+                shaped(RecipeCategory.MISC, ItemInit.REDWOOD_HANGING_SIGN, 6)
                         .define('E', BlockInit.STRIPPED_REDWOOD_LOG)
                         .define('A', Blocks.IRON_CHAIN)
                         .pattern("A A")

@@ -2,64 +2,42 @@ package github.jcsmecabricks.redwoodvariants.world.biomes.surface;
 
 import github.jcsmecabricks.redwoodvariants.world.biomes.ModBiomes;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.world.level.levelgen.material.MaterialRules;
+import net.minecraft.world.level.levelgen.material.condition.MaterialCondition;
+import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
+import net.minecraft.world.level.levelgen.placement.CaveSurface;
+
+import static net.minecraft.data.worldgen.material.VanillaMaterialConditions.ON_FLOOR;
 
 public class ModMaterialRules {
 
-    private static final SurfaceRules.RuleSource DIRT =
+    private static final MaterialRule DIRT =
             makeStateRule(Blocks.DIRT);
 
-    private static final SurfaceRules.RuleSource GRASS_BLOCK =
+    private static final MaterialRule GRASS_BLOCK =
             makeStateRule(Blocks.GRASS_BLOCK);
 
-    public static SurfaceRules.RuleSource makeRules(
-            HolderGetter<Biome> biomes
-    ) {
-        SurfaceRules.ConditionSource isAtOrAboveWaterLevel =
-                SurfaceRules.waterBlockCheck(-1, 0);
+    private static final MaterialCondition ON_FLOOR = MaterialRules.stoneDepthCheck(0, false, CaveSurface.FLOOR);
+    private static final MaterialCondition UNDER_FLOOR = MaterialRules.stoneDepthCheck(0, true, CaveSurface.FLOOR);
+    private static final MaterialCondition DEEP_UNDER_FLOOR = MaterialRules.stoneDepthCheck(0, true, 6, CaveSurface.FLOOR);
+    private static final MaterialCondition UNDER_CEILING = MaterialRules.stoneDepthCheck(0, true, CaveSurface.CEILING);
 
-        SurfaceRules.RuleSource grassSurface =
-                SurfaceRules.sequence(
-                        SurfaceRules.ifTrue(
-                                isAtOrAboveWaterLevel,
-                                GRASS_BLOCK
-                        ),
-                        DIRT
-                );
-
-        return SurfaceRules.sequence(
-
-                // Redwood biome surface rules
-                SurfaceRules.ifTrue(
-                        SurfaceRules.isBiome(
-                                biomes,
-                                ModBiomes.REDWOOD_BIOME
-                        ),
-                        SurfaceRules.sequence(
-                                SurfaceRules.ifTrue(
-                                        SurfaceRules.ON_FLOOR,
-                                        GRASS_BLOCK
-                                ),
-                                SurfaceRules.ifTrue(
-                                        SurfaceRules.ON_CEILING,
-                                        GRASS_BLOCK
-                                )
-                        )
-                ),
-
-                // Default grass and dirt surface
-                SurfaceRules.ifTrue(
-                        SurfaceRules.ON_FLOOR,
-                        grassSurface
-                )
+    public static MaterialRule makeRules(RegistryAccess registryAccess) {
+        return MaterialRules.sequence(
+                MaterialRules.ifTrue(MaterialRules.isBiome(registryAccess.lookupOrThrow(Registries.BIOME), ModBiomes.REDWOOD_BIOME),
+                        MaterialRules.sequence(MaterialRules.ifTrue(UNDER_FLOOR, GRASS_BLOCK))),
+                // Default to green terracotta
+                MaterialRules.ifTrue(ON_FLOOR, GRASS_BLOCK)
         );
     }
 
-    private static SurfaceRules.RuleSource makeStateRule(Block block) {
-        return SurfaceRules.state(
+    private static MaterialRule makeStateRule(Block block) {
+        return MaterialRules.state(
                 block.defaultBlockState()
         );
     }

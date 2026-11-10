@@ -1,6 +1,7 @@
 package github.jcsmecabricks.redwoodvariants.data.provider;
 
 import github.jcsmecabricks.redwoodvariants.init.BlockInit;
+import github.jcsmecabricks.redwoodvariants.init.ItemInit;
 import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootSubProvider;
 import net.minecraft.core.HolderLookup;
@@ -24,10 +25,27 @@ public class RedwoodVariantsBlockLootTableProvider extends FabricBlockLootSubPro
                 dropSelf(BlockInit.REDWOOD_PLANKS);
                 dropSelf(BlockInit.REDWOOD_LOG);
                 dropSelf(BlockInit.REDWOOD_WOOD);
-                dropSelf(BlockInit.REDWOOD_SIGN);
-                dropSelf(BlockInit.REDWOOD_HANGING_SIGN);
-                dropSelf(BlockInit.REDWOOD_WALL_HANGING_SIGN);
-                dropSelf(BlockInit.REDWOOD_WALL_SIGN);
+        // Regular sign
+        add(
+                BlockInit.REDWOOD_SIGN,
+                createSingleItemTable(ItemInit.REDWOOD_SIGN)
+        );
+
+        add(
+                BlockInit.REDWOOD_WALL_SIGN,
+                createSingleItemTable(ItemInit.REDWOOD_SIGN)
+        );
+
+        // Hanging sign
+        add(
+                BlockInit.REDWOOD_HANGING_SIGN,
+                createSingleItemTable(ItemInit.REDWOOD_HANGING_SIGN)
+        );
+
+        add(
+                BlockInit.REDWOOD_WALL_HANGING_SIGN,
+                createSingleItemTable(ItemInit.REDWOOD_HANGING_SIGN)
+        );
                 dropSelf(BlockInit.STRIPPED_REDWOOD_WOOD);
                 dropSelf(BlockInit.STRIPPED_REDWOOD_LOG);
                 add(BlockInit.REDWOOD_SLAB, createSlabItemTable(BlockInit.REDWOOD_SLAB));

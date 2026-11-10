@@ -20,7 +20,7 @@ public class RedwoodVariantsItemTagProvider extends FabricTagsProvider.ItemTagsP
                 .add(ItemInit.getRK(ItemInit.REDWOOD_SIGN));
 
         tag(ItemTags.HANGING_SIGNS)
-                .add(ItemInit.getRK(ItemInit.HANGING_REDWOOD_SIGN));
+                .add(ItemInit.getRK(ItemInit.REDWOOD_HANGING_SIGN));
 
         tag(ItemTags.BOATS)
                 .add(ItemInit.getRK(ItemInit.REDWOOD_BOAT));

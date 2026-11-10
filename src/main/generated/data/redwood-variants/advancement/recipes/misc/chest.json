@@ -23,7 +23,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "redwood-variants:chest"
+        "recipes": "redwood-variants:chest"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

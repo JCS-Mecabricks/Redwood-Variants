@@ -3,14 +3,16 @@ package github.jcsmecabricks.redwoodvariants.world.biomes;
 import github.jcsmecabricks.redwoodvariants.RedwoodVariants;
 import github.jcsmecabricks.redwoodvariants.entity.ModEntities;
 import github.jcsmecabricks.redwoodvariants.init.worldgen.PlacedFeatureInit;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.attribute.BackgroundMusic;
-import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.attribute.*;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
@@ -19,6 +21,10 @@ import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import terrablender.api.Regions;
+
+import java.util.List;
+import java.util.Optional;
 
 import static net.minecraft.data.worldgen.biome.OverworldBiomes.calculateSkyColor;
 
@@ -31,14 +37,8 @@ public class ModBiomes {
         context.register(REDWOOD_BIOME, redwoodBiome(context, redwood));
     }
 
-    private static Biome.BiomeBuilder biome(float temperature, float downfall) {
-        return new Biome.BiomeBuilder()
-                .hasPrecipitation(true)
-                .temperature(temperature)
-                .downfall(downfall)
-                .specialEffects(new BiomeSpecialEffects.Builder()
-                        .waterColor(4159204)
-                        .build());
+    public static void registerBiomes() {
+        Regions.register(new ModOverworldRegion(Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwood_biome"), 20));
     }
 
     public static void globalOverworldGeneration(BiomeGenerationSettings.Builder builder) {
@@ -52,17 +52,15 @@ public class ModBiomes {
     public static Biome redwoodBiome(BootstrapContext<Biome> context, boolean redwood) {
         MobSpawnSettings.Builder spawnBuilder = new MobSpawnSettings.Builder();
 
-        spawnBuilder.addSpawn(MobCategory.CREATURE, 5,
-                new MobSpawnSettings.SpawnerData(EntityTypes.WOLF, 4, 4));
-        spawnBuilder.addSpawn(MobCategory.CREATURE, 6,
-                new MobSpawnSettings.SpawnerData(EntityTypes.FOX, 3, 5));
+        spawnBuilder.addSpawn(EntityTypes.WOLF, 5, UniformInt.of(4, 4));
+        spawnBuilder.addSpawn(EntityTypes.FOX, 20, UniformInt.of(3, 5));
 
         BiomeDefaultFeatures.farmAnimals(spawnBuilder);
 
         BiomeGenerationSettings.Builder genBuilder =
                 new BiomeGenerationSettings.Builder(
                         context.lookup(Registries.PLACED_FEATURE),
-                        context.lookup(Registries.CONFIGURED_CARVER)
+                        context.lookup(Registries.CARVER)
                 );
 
         globalOverworldGeneration(genBuilder);
@@ -78,29 +76,21 @@ public class ModBiomes {
         BiomeDefaultFeatures.addForestFlowers(genBuilder);
         BiomeDefaultFeatures.addDefaultExtraVegetation(genBuilder, true);
 
-        return biome(0.4F, 0.7F)
+        return new Biome.BiomeBuilder()
+                .hasPrecipitation(false).temperature(1F).downfall(0.7F)
+                .specialEffects(new BiomeSpecialEffects.Builder()
+                .waterColor(4159204)
+                .grassColorOverride(9470285)
+                .foliageColorOverride(16262185)
+                .build())
+                .mobSpawnSettings(spawnBuilder.build()).generationSettings(genBuilder.build())
+                .setAttribute(EnvironmentAttributes.WATER_FOG_COLOR, ARGB.vector3fFromRGB24(12638463))
+                .setAttribute(EnvironmentAttributes.BACKGROUND_MUSIC, new BackgroundMusic(SoundEvents.AMBIENT_WARPED_FOREST_MOOD))
                 // ✅ VISUAL ENVIRONMENT
                 .setAttribute(
                         EnvironmentAttributes.SKY_COLOR,
-                        calculateSkyColor(0.4F)
+                        ARGB.vector3fFromRGB24(0x78A7FF)
                 )
-                .setAttribute(
-                        EnvironmentAttributes.WATER_FOG_COLOR,
-                        12638463
-                )
-                .setAttribute(
-                        EnvironmentAttributes.BACKGROUND_MUSIC,
-                        new BackgroundMusic(SoundEvents.AMBIENT_WARPED_FOREST_MOOD)
-                )
-
-                // ✅ BIOME EFFECTS (COLORS ONLY)
-                .specialEffects(new BiomeSpecialEffects.Builder()
-                        .waterColor(4159204)
-                        .grassColorOverride(9470285)
-                        .foliageColorOverride(16262185)
-                        .build())
-
-                .mobSpawnSettings(spawnBuilder.build())
                 .generationSettings(genBuilder.build())
                 .build();
     }

@@ -1,6 +1,5 @@
 package github.jcsmecabricks.redwoodvariants;
 
-import github.jcsmecabricks.redwoodvariants.entity.ModModelLayerLocations;
 import github.jcsmecabricks.redwoodvariants.entity.ModEntities;
 import github.jcsmecabricks.redwoodvariants.entity.custom.GrizzlyBearEntity;
 import github.jcsmecabricks.redwoodvariants.init.BlockInit;
@@ -11,21 +10,23 @@ import github.jcsmecabricks.redwoodvariants.registry.ModWoodType;
 import github.jcsmecabricks.redwoodvariants.util.ModBlockSetType;
 import github.jcsmecabricks.redwoodvariants.util.ModPointOfInterestTypes;
 import github.jcsmecabricks.redwoodvariants.world.ModEntitySpawns;
+import github.jcsmecabricks.redwoodvariants.world.biomes.ModBiomes;
+import github.jcsmecabricks.redwoodvariants.world.biomes.surface.ModMaterialRules;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
-import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import terrablender.api.MaterialRuleManager;
+import terrablender.api.TerraBlenderApi;
 
-public class RedwoodVariants implements ModInitializer {
+public class RedwoodVariants implements ModInitializer, TerraBlenderApi {
 	public static final String MOD_ID = "redwood-variants";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	@Override
@@ -62,8 +63,6 @@ public class RedwoodVariants implements ModInitializer {
 		FlammableBlockRegistry.getDefaultInstance().add(BlockInit.REDWOOD_TRAPDOOR, 5, 20);
 		FlammableBlockRegistry.getDefaultInstance().add(BlockInit.REDWOOD_BUTTON, 5, 20);
 
-		StrippableBlockRegistry.register(BlockInit.REDWOOD_LOG, BlockInit.STRIPPED_REDWOOD_LOG);
-		StrippableBlockRegistry.register(BlockInit.REDWOOD_WOOD, BlockInit.STRIPPED_REDWOOD_WOOD);
 
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(entries -> {
 			entries.insertAfter(Items.WARPED_BUTTON, BlockInit.REDWOOD_LOG);
@@ -96,10 +95,18 @@ public class RedwoodVariants implements ModInitializer {
 
 		CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(entries -> {
 			entries.insertBefore(Items.WARPED_HANGING_SIGN, ItemInit.REDWOOD_SIGN);
-			entries.insertBefore(ItemInit.REDWOOD_SIGN, ItemInit.HANGING_REDWOOD_SIGN);
+			entries.insertBefore(ItemInit.REDWOOD_SIGN, ItemInit.REDWOOD_HANGING_SIGN);
 
 		});
 	}
+
+	@Override
+	public void onTerraBlenderInitialized() {
+		ModBiomes.registerBiomes();
+
+		MaterialRuleManager.addRules(MaterialRuleManager.RuleCategory.OVERWORLD, MOD_ID, ModMaterialRules::makeRules);
+	}
+
 	public static Identifier id(String path) {
 		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}

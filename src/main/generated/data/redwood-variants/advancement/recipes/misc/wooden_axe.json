@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "redwood-variants:wooden_axe"
+        "recipes": "redwood-variants:wooden_axe"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

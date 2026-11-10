@@ -45,17 +45,12 @@ import java.util.Optional;
 
 
 public class RedwoodPortalBlock extends Block implements Portal{
-    public static final MapCodec<RedwoodPortalBlock> CODEC = simpleCodec(RedwoodPortalBlock::new);
     public static final EnumProperty<Direction.Axis> AXIS;
     private static final Logger LOGGER = LogUtils.getLogger();
 
     protected static final int field_31196 = 2;
     protected static final VoxelShape X_SHAPE;
     protected static final VoxelShape Z_SHAPE;
-
-    public MapCodec<RedwoodPortalBlock> codec() {
-        return CODEC;
-    }
 
     public RedwoodPortalBlock(Properties settings) {
         super(settings);

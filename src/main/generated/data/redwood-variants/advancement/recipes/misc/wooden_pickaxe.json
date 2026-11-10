@@ -23,7 +23,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "redwood-variants:wooden_pickaxe"
+        "recipes": "redwood-variants:wooden_pickaxe"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

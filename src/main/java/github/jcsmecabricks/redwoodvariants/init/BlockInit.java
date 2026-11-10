@@ -48,7 +48,7 @@ public class BlockInit {
                     .strength(-1.0F)
                     .sound(SoundType.GLASS)
                     .lightLevel(state -> 11)
-                    .pushReaction(PushReaction.BLOCK)
+                    .pushReaction(PushReaction.IMMOVEABLE)
                     .setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwood_portal")))));
 
     public static final Block REDWOOD_PLANKS = registerBlock("redwood_planks",
@@ -161,8 +161,7 @@ public class BlockInit {
                     .isValidSpawn(Blocks::ocelotOrParrot)
                     .isSuffocating(Blocks::never)
                     .ignitedByLava()
-                    .isViewBlocking(Blocks::never)
-                    .pushReaction(PushReaction.DESTROY)
+                    .pushReaction(PushReaction.POPPED)
                     .isRedstoneConductor(Blocks::never)
                     .setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(RedwoodVariants.MOD_ID, "redwood_leaves")))));
 
@@ -195,6 +194,8 @@ public class BlockInit {
                     .strength(1.0F).ignitedByLava());
 
     public static final BlockFamily REDWOOD_FAMILY = BlockFamilies.familyBuilder(REDWOOD_PLANKS)
+            .log(REDWOOD_LOG)
+            .strippedLog(STRIPPED_REDWOOD_LOG)
             .sign(REDWOOD_SIGN, REDWOOD_WALL_SIGN)
             .hangingSign(
                     REDWOOD_HANGING_SIGN,
